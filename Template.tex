@@ -506,7 +506,126 @@ $$score = \frac {W_{ua} * M_{ua} + W_{url} * M_{url} + W_{other} * M_{other} + W
 不同用户的浏览器具有不同的特征信息和丰富的数据，网站可以通过在用户访问时通过不同的 API 和技术手段获取浏览器特征信息构建独特的浏览器指纹。浏览器指纹技术能够在无cookie的情况下提供一种追踪用户的鲁棒性方案。
 令指纹生成算法为 F(⋅)。当出现一个新的浏览器信息 x 时，生成一个浏览器指纹 F(x)。该算法遵循离散概率密度函数 P( fn) 。其中，fn 为某个特征信息的指纹生成结果 ；n∈[0,1,…,N]，N 为特征信息的个数。对于某单个特征信息的指纹生成结果 fn，使用自信息量 I 表示该浏览器指纹所包含信息的比特数，即：
 
+\begin{equation}
+I(F(x)=f_n)=-log_2(P(fn)) \tag{1}
+\end{equation}
 
+当指纹由多个不同的特征信息组合而成时，假设不同特征信息对应的指纹生成算法为 Fs()，s∈[0,1,…,S ]（S 为指纹生成算法的个数），则根据公式（2）单独计算每个特征信息的指纹生成结果 fn,s 的自信息量 Is(fn,s)，并根据公式（3）定义指纹组件的信息熵 Hs(Fs)。
+
+\begin{equation}
+I_s(f_{n,s})=-log_2(P(f_{n,s})) \tag{2} 
+\end{equation}
+\begin{equation}
+H_s(F_s)=-\sum_{n=0}^{N}P(f_s,n)log_2(P(f_s,n)) \tag{3}
+\end{equation}
+
+
+信息熵表征浏览器所有自信息量的期望值。对于两个相互独立的特征组件，自信息量可直接线性相加。根据自信息量 I 可以确认指纹归属对象的身份。I 包含的若干比特信息中的每一比特信息都能将该浏览器指纹可能的归属集合减半。特征信息进行组合生成指纹，每一个特征信息具有若干比特的信息熵，熵值越大，则越能准确地区分不同的浏览器实体。因此要选取恰当且包含足够比特信息的特征信息集合，通过该特征信息集合生成的指纹能够唯一确认指纹归属对象的身份。
+
+
+
+\subsubsection{Canvas 指纹}
+Mowery和Shacham提出了通过HTML 5 的 Canvas API以及WebGL渲染文本得到像素差异，作为一种具有高信息熵的浏览器指纹生成方式[27]。
+canvas元素是html5规范中新增的一类元素，能够在屏幕上可编程地绘制图像，并且被大部分主流的浏览器支持。绘制一个基本的canvas图形的方法相当简单：需要浏览器提供给用户一个图形渲染的环境，使用环境中的API来渲染你对canvas图像的操作和改变。在目前使用的html5规范中，广泛使用的2d环境能提供诸如fillRect, lineTo以及arc这样的一些基本绘图功能。也有一些复杂的功能可以支持贝塞尔曲线，颜色梯度的这样一些功能。
+
+\begin{itemize}
+\item Canvas Text渲染：给定字体，字体颜色以及位置参数，2d context能够在canvas绘制出任意的文本。
+\item Canvas 像素抽取： 2D context提供了一个getImageData方法，通过该方法能够获取一个给定区域范围内的图片对象，该对象是以图片中的每一个元素的RGBA值组成的。其次，canvas对象本身提供toDataURL方法，当提供一个图片作为该方法的输入后，该方法能够将完整的图片内容以base64编码的形式返回。以上两个方法均严格遵循浏览器同源策略。
+\item WebFront：webFront是定义在CSS3中的规范，允许用户按需加载远程字体，而不是只能依赖于已经安装在本地的字体。在使用这个特性时，需要加入@front-face这样一条规则，并使用src属性指定远程字体资源的url地址。为了使用WebFront，需要开启WebFront Loader函数库。通过使用该函数库，WebFront仅仅通过JavaScript就能够加载。
+ \item WebGL：WebGL提供了一个javascript的API用于在canvas上绘制图像，目前的主流浏览器都支持WebGL的硬件加速选项，可以使用图形硬件来渲染每一帧，目前WebGL也通过各自的canvas环境暴露出相应的函数接口，类似于OpenGL API,可以使用GLSL（OpenGL Shading Language）编程，在编译后，可以直接运行在硬件显卡上。
+ \end{itemize}
+
+
+\subsubsection{浏览器特定指纹}
+ECKERSLEY根据浏览器的环境，通过收集一些网站能够获取的浏览器常用或者不常用的特性，用以生成浏览器的指纹[26]。这些特性中有一部分可以通过简单静态的HTTP请求中推断出来，也可以经由AJAX接口收集。特性收集过程中，有一部分特性是简单明了的，但有一部分特性是来源于一些浏览器细节。有些浏览器禁用了javascript，那么他会使用video，plugins，fonts和supercookie的默认值。因此可以通过这一细节来推断出浏览器是否禁用了javascript。我们在研究中使用了如下的常见浏览器特性来产生浏览器指纹：
+
+\begin{itemize}
+\item user-agent
+\item 浏览器语言设置
+\item 浏览器storage设置 （SessionStorage，LocalStorage，IndexDb)
+\item cookie支持
+\item 屏幕分辨率
+\item timezone
+\item 浏览器插件信息
+\item 系统字体
+\item doNotTrack标识
+\item ie activex支持
+\item canvas指纹
+ \end{itemize}
+ 
+ 以下是我们在不同操作系统，不同版本的不同浏览器上根据以上特征使用hash算法生成的128 bit指纹。
+ 
+\centerline{}
+\begin{table}[h]
+  \caption{不同浏览器指纹比较}
+  \label{tab:papercomponents}
+  \centering
+\begin{tabular}{|p{3cm}<{\centering}||p{3cm}<{\centering}|p{3cm}<{\centering}|p{6cm}<{\centering}|}
+    \hline
+    webdriver名称 & 版本 & 操作系统 & 浏览器指纹    \\
+    \hline
+   
+chromium & 70.0.3509.0 & ubuntu 16.04 x64 & 1a82cc57a97d7a931a82cc5720de9977 \\
+\hline
+chromium & 70.0.3514.0 & ubuntu 16.04 x64 & bae33d459368bee9bae33d45b8a2efa1\\
+\hline
+chromium & 70.0.3519.0 & ubuntu 16.04 x64 & 06a3007b36556ee506a3007bad572654\\
+\hline
+firefox(headless) & 57 & ubuntu 16.04 x64 & 576d92810cef4933576d9281c52a137b\\
+\hline
+firefox(headless) & 63 & ubuntu 16.04 x64 & 332ac9f169afb00b332ac9f18b81828d\\
+\hline
+firefox(headless) & 68 & ubuntu 16.04 x64 & 4cb3ae543ab898494cb3ae54fc189ce4\\
+\hline
+phantomjs & 1.9.7 & ubuntu 16.04 x64 & 2d15aa2ba520737e2d15aa2b4a84aa17\\
+\hline
+phantomjs & 1.9.8 & ubuntu 16.04 x64 & 4c83cbcb790af6734c83cbcb8e935880\\
+\hline
+phantomjs & 2.1.1 & ubuntu 16.04 x64 & ba8506ab17e80837ba8506ab62082282\\
+\hline
+chrome & 78.0.3904.97 & macos 10.14.4 & 49c81cf7b7d05f9e49c81cf71fce9c5e\\
+\hline
+safari & 12.1 & macos 10.14.4 & 410160ac93cefc91410160ac72900fc9\\
+\hline
+firefox & 70.0.1 & macos 10.14.4 & 259295adde33bc05259295ad81fa3bed\\
+\hline
+chrome & 78.0.3904.84 & ios 12.2 & cef500876945eee2cef50087fadd5d18\\
+\hline
+    \end{tabular}
+\end{table}
+\centerline{}
+
+根据Mowery的论文[12]，动态指纹的独特性和熵能够得到保证。因此，在并发流量不太高的情况下，将其作为session分类的重要依据，能够得到相当高的准确率。我们将动态指纹加入到我们的相似度计算函数，函数更新后为：
+
+$$score = \frac {W_{ua} * M_{ua} + W_{url} * M_{url} + W_{other} * M_{other} + W_{order} * M_{order} + W_{dynamic} * M_{dynamic}} {C_{field} + 3}$$
+
+因为我们使用的动态指纹分类技术需要javascript的支持，原先的数据集a和b并没有记录下相关的信息，因此我们只能使用数据集c来作为评估基于静态/动态指纹的session分类方法的准确性。在动态指纹生成的整个过程，我们首先在请求中捕获没有动态指纹生成、动态指纹过期、动态指纹伪造的请求，针对该请求发送相应的指纹生成javascript脚本脚本执行完后，会产生浏览器的特定指纹，并将该指纹返回到服务器（最好使用加密算法），服务器根据该指纹，分配并绑定session。大致流程如下图所示：
+
+
+\centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/fingerprint_generation.jpg}
+  \caption{浏览器指纹生成流程}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+
+最终结果显示，我们的准确率是96.71\%，而静态指纹的session分类算法在数据集c上的准确率仅仅为23.73\%。
+
+
+\subsection{session检测规则}
+
+结合已有论文中的方法以及我们的具体使用场景，在session检测规则上，我们主要考虑如下特征：
+
+\begin{itemize}
+\item 4xx/5xx 返回状态码的比例：http返回的状态码指示了当前http请求处理结果的状态。最常见的正常返回时200，对应的返回状态是”OK“，在提交登录凭证的时候，也有可能产生一些从定向的返回状态码，如301和302。而出现4xx以及5xx的状态码时，往往以为这服务器在处理相关请求时出现了错误，或者用户发送的http请求并不是一个满足http协议的合法的请求。在普通的用户用浏览器访问的情况下，很少会出现这样的状态。而爬虫因为其扩张性以及一定的侵略性，则经常会触发相应的错误，尤其是因为访问服务器上不存在的资源而触发”404 not found“的错误。
+\item 某时间段内（如1min）内的最大请求次数：高频率地请求网站的相关资源，从而导致web服务器的带宽资源以及计算资源被大量消耗，是恶意爬虫对网站的主要危害之一，而普通用户的访问往往是达不到很高的请求速率的。因此某段时间内的最大请求频次可以作为一个关键指标，来衡量一个session是否来自于爬虫。
+\item 请求时间间隔标准差：爬虫的请求频率和次数往往由程序事先定义好，因此从session角度来看，爬虫的请求时间间隔通常会有很强的规律性，而这些时间间隔的标准差，正是能够反应该规律性显著程度的重要指标。
+\item 请求URL资源不同类型比例：爬虫访问与人类访问相比，更加注重数据的收集和效率，而人类更注重数据的可读性。基于这种假设，我们不难得出结论，爬虫对于web page资源更加偏爱，但是会忽略一部分对于爬虫而言没有意义的样式表文件，字体文件，javascript文件的加载。因此，根据session中的url资源比例，能够判定出一部分的爬虫。
+\end{itemize}
+
+如下，是从数据集a中抽取了具有代表性的爬虫session以及人类session的特征比较：
 
 
 
