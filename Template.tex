@@ -1,0 +1,372 @@
+%% %%=================================================================
+%% %% <UTF-8>
+%% %% 北航学位论文模板使用样例
+%% %% 请将以下文件与此LaTeX文件放在同一目录中.
+%% %%-----------
+%% %% buaa.cls              : LaTeX宏模板文件
+%% %% buaa_mac.cls          : LaTeX宏模板文件(For Mac with XeLaTeX)
+%% %% GBT7714-2005.bst      : 国标参考文献BibTeX样式文件2005(https://github.com/Haixing-Hu/GBT7714-2005-BibTeX-Style)
+%% %% GBT7714-2015.bst      : 国标参考文献BibTeX样式文件2015(https://github.com/zepinglee/gbt7714-bibtex-style)
+%% %% logo-buaa.eps         : 论文封皮北航字样
+%% %% head-doctor.eps       : 论文封皮北博士学位论文标题(华文行楷字体替代解决方案)
+%% %% head-master.eps       : 论文封皮北学硕学位论文标题(华文行楷字体替代解决方案)
+%% %% head-professional.eps : 论文封皮北专硕学位论文标题(华文行楷字体替代解决方案)
+%% %% tex/*.tex             : 本模板样例中的独立章节
+%% %%-----------
+%% %% 请统一使用UTF-8编码.
+%% %%=================================================================
+
+%=================================================================
+%\documentclass[doctor,privacy,twoside]{buaa}
+
+%% Mac系统请使用buaa_mac，并使用XeLaTeX编译。
+\documentclass[doctor,privacy,twoside]{buaa_mac}
+
+% 可加入额外ctexbook文档类的选项，其将会被传递给ctexbook。
+% 例如：\documentclass[doctor,privacy,twoside,fontset=founder]{buaa}
+% CTeX在Linux下默认使用Fandol字体，为避免某些生僻字无法显示，在系统
+% 已安装方正字体的前提下可通过fontset=founder选项常用方正字体。
+
+%=================================================================
+% buaa基于ctexbook模板
+% 论文样式参考自《研究生手册--二〇一五年八月》
+%======================
+% 模板选项:
+%======================
+% I.论文类型(thesis)
+
+%--------------------
+% a.学术硕士论文（master）[缺省值]
+% b.专业硕士论文（professional）
+% c.博士论文（doctor）
+%--------------------
+% II.密级(permission)
+%--------------------
+% a.公开（public）[缺省值]
+% b.内部（privacy）
+% c.秘密（secret=secret3）
+% c.1.秘密3年（secret3）
+% c.2.秘密5年（secret5）
+% c.3.秘密10年（secret10）
+% c.4.秘密永久（secret*）
+% d.机密（classified=classified5）
+% d.1.机密3年（classified3）
+% d.2.机密5年（classified5）
+% d.3.机密10年（classified10）
+% d.4.机密永久（classified*）
+% e.绝密（topsecret=topsecret10）
+% e.1.绝密3年（topsecret3）
+% e.2.绝密5年（topsecret5）
+% e.3.绝密10年（topsecret10）
+% e.4.绝密永久（topsecret*）
+%--------------------
+% III.打印设置(printtype)
+%--------------------
+% a.单面打印（oneside）[缺省值]
+% b.双面打印（twoside）
+%--------------------
+%=================================================================
+
+
+%=================================================================
+% 开启/关闭引用编号颜色：参考文献，公式，图，表，算法 等……
+\refcolor{on}   % 开启: on[默认]; 关闭: off;
+% 摘要和正文从右侧开始
+\beginright{on} % 开启: on[默认]; 关闭: off;
+% 空白页留字
+\emptypagewords{[ -- This page is a preset empty page -- ]}
+
+%=================================================================
+% buaa模板已内嵌以下LaTeX工具包:
+%--------------------
+% ifthen, etoolbox, titletoc, remreset, remreset,
+% geometry, fancyhdr, setspace, caption,
+% float, graphicx, subfigure, epstopdf,
+% booktabs, longtable, multirow,
+% array, enumitem
+% algorithm2e, amsmath, amsthm, listings
+% pifont, color, soul, newtxtext, newtxmath
+%--------------------
+% 请在此处添加额外工具包>>
+
+
+%=================================================================
+% buaa模板已内嵌以下LaTeX宏:
+%--------------------
+% \highlight{text} % 黄色高亮
+%--------------------
+% 请在此处添加自定义宏>>
+
+
+%%=================================================================
+% 论文题目及副标题-{中文}{英文}
+\Title{恶意网络爬虫检测与对抗技术的研究及实现} {Research and implementation of malicious web crawler detection and confrontation technology}
+%\Subtitle{版本 \BUAAThesisVer{}}{Version \BUAAThesisVer{}}
+
+% 学科大类,默认工学
+% \Branch{工学}
+
+% 院系,专业及研究方向
+\Department{计算机学院}
+\Major{网络空间安全}
+\Feild{网络空间安全}
+
+% 导师信息-{中文名}{英文名}{职称}
+\Tutor{李舟军}{Li Zhoujun}{教授}
+\Cotutor{何跃鹰}{He Yueying}{处长}
+
+% 学生姓名-{中文名}{英文名}
+\Author{张浩凌}{Zhang Haoling}
+% 学生学号
+\StudentID{SY1706404}
+
+% 中图分类号
+\CLC{TP391.4}
+
+% 时间节点-{月}{日}{年}
+\DateEnroll{09}{01}{2017}
+\DateGraduate{01}{31}{2020}
+\DateSubmit{11}{25}{2019}
+\DateDefence{  }{  }{    }
+
+%%=================================================================
+% 摘要-{中文}{英文}
+\Abstract{%
+  随着各类基于大数据和AI的应用的兴起，能够快速廉价地获取大量有效数据的能力，成为互联网时代企业和个人竞争力的体现。因此，网络爬虫在数据收集收集方面的重要性逐渐凸显出来。但是，恶意爬虫同样给互联网用户和互联网服务提供者带来巨大的困扰，这些爬虫或者多线程高并发耗尽服务器的带宽和计算资源[1]，或者爬取个人敏感信息、高价值的商业数据用于不法用途。
+
+  因此，构建一个成熟有效的反爬虫系统，成为一个亟待解决的问题。但遗憾的是，传统的反爬虫方式过于保守和被动，在漏检率和误检率居高不下的情况下，往往只能通过单一的反制手段来限制爬虫（如IP封锁，访问频率限制，虚假数据等），在反爬虫的战争中收效甚微。为此，本文提出了一种新型的反爬虫的系统，融合爬虫检测技术，爬虫行为分析和溯源技术，并通过动态符号执行、模糊测试以及污点分析等二进制漏洞挖掘方法，挖掘爬虫使用的框架、处理脚本，无头浏览器驱动程序驱动程序的漏洞，并通过返回恶意的攻击载荷，对运行恶意爬虫的主机进行反向攻击，最终诱使恶意爬虫进程奔溃，甚至可能获取到恶意爬虫主机上的敏感数据以及系统权限。
+
+  此外，本文将遵循上述的设计思路，实现该反爬虫系统的原型系统Crawler-Net(捕虫网），并将Crawler-Net部署在模拟的业务系统上，使用具有不同请求策略的爬虫流量混合正常的用户访问进行测试，从漏检率、误检率、系统性能损失等多方面的指标来评估反爬虫系统的性能。
+  }{%
+  With the flourish of the Applications based on the Big Data and Artificial Intelligence, it has aroused our attention in how to collect numerous valid data rapidly at the least cost, which could be regarded as an aspect of competitive competence both for the individuals and the companies. And thus, the power of the crawlers in collecting data has been addressed. However, there are plenty of malicious crawlers filling in the cyberspace, try to deplete the servers' resource with endless requests concurrently, or theft the sensitive individual's information or commercial data for illegal use.
+
+  Therefore, we are supposed to build up a feasible, active and robust anti-crawling system to stop those malicious crawlers, while most of the contemporary anti-crawling systems are using passive strategies. Those anti-crawling systems could only harness single mechanism to block the crawlers( such as IP blocking, limit the frequency of requests, fake data), and that does not seem to be effective in most cases. In this paper, we propose an anti-crawling system, which combines the crawler detection with the analysis of crawler's behaviors, then utilizes the dynamic symbolic execution, fuzzing and dynamic taint analysis， to excavate the vulnerabilities of the frameworks, the handling scripts and the headless web-driver binaries of the crawlers. Ultimately, malicious payloads would be generated to feed the crawler when it crawls our web pages, leading it to crash down or even obtain the sensitive data as well as the system privileges from the crawler's host. 
+
+  In addition, at the end of the paper, I would build up the prototype of the anti-crawling system called "Crawler Net" according to the technologies and mechanisms mentioned before, with the deployment to the web application in a simulated production environment. Furthermore, several tests would be conducted with the requests generated by various types of crawlers and the requests from normal user to testify its ability to block the crawlers and the performance once deployed.
+}
+% 关键字-{中文}{英文}
+\Keyword{%
+    恶意爬虫，反爬虫机制，无头浏览器，爬虫检测，爬虫溯源，动态符号执行，模糊测试
+  }{%
+    malicious crawler, anti-crawling system, headless browser, crawler detection, crawler trace, dynamic symbolic execution, fuzzing test
+}
+
+% 图标目录
+\Listfigtab{on} % 启用: on[默认]; 关闭: off;
+
+% 缩写定义 按tabular环境或其他列表环境编写
+\Abbreviations{ \centering
+\begin{tabular}{cl}
+  $E$ & 能量 \\
+  $m$ & 质量 \\
+  $c$ & 光速 \\
+  $P$ & 概率 \\
+  $T$ & 时间 \\
+  $v$ & 速度 \\
+\end{tabular}
+}
+
+\begin{document}
+
+%%=================================================================
+% 标题级别
+%--------------------
+% \chapter{第一章}
+% \section{1.1 小节}
+% \subsection{1.1.1 条}
+% \subsubsection{1.1.1.1}
+% \paragraph{1.1.1.1.1}
+% \subparagraph{1.1.1.1.1.1}
+%--------------------
+%%=================================================================
+
+% 绪论
+
+
+\chapter{绪论}
+
+
+%%============================
+\section{研究背景及意义}
+机器学习，数据挖掘等大量数据依赖型的技术在高速发展的同时，对于相关数据的质和量都提出了更高的要求。网络爬虫，又称网络蜘蛛或者网络机器人，在这样一个数据消费的时代，扮演着数据搬运者和传递者的角色。在其运行的生命周期中，往往会按照开发者预设的规则，爬取指定的URL地址或者URL地址列表，并将获取到的数据预处理成标准化的格式[2]。
+
+普通的网络爬虫并没有危害，相反，搜索引擎存储数据的来源都是基于大量分布式网络爬虫爬取得到的结果，网络爬虫在数据传递过程中起到至关重要的重要。但是多线程高并发的失控爬虫，针对网站隐私数据的窃密爬虫，以及不遵守爬虫道德规范的恶意爬虫，都对网络空间健康的生态环境提出了巨大的挑战。
+
+爬虫失控往往是具有多线程操作的通用型爬虫，未能控制爬行时间间隔，或者因为未添加地址环回检测的处理逻辑，在处理特殊的地址链接时陷入死循环中。失控的爬虫通常给网站的性能资源和带宽资源带来巨大的消耗，甚至会影响正常人类用户的体验，这样的爬虫对网站的影响相当于是DDOS攻击[1]。每年的三月份，是失控爬虫的高发期，原因正是因为大量的硕士在写论文时会爬取网站数据用于数据挖掘或者机器学习。
+
+此外，部分互联网公司会爬取其他同行的优质数据用于商业用途，在给其竞争对手带来经济效益的损失的同时，还会促进产业内部恶性竞争的循环。例如，马蜂窝网站的用户评论数据涉嫌造假事件。甚至在一些情况下，恶意爬虫甚至会爬取敏感个人信息用于不法用途，例如某大数据公司非法爬取个人信息被起诉一案。
+
+某些由黑客或者APT组织控制的爬虫，在爬取某些CMS系统或者web中间件的版本信息后，会使用相应的攻击向量攻击脆弱主机[6]，给网站服务提供者及使用者造成巨大的损失。
+网络空间一直是爬虫与反爬虫战斗的前线，随着反反爬虫技术的不断迭代更新，传统的静态、单一、被动与非实时的反爬虫技术难以与之对抗，或者又因为部署成本和部署带来的性能损失而被束之高阁。
+
+%%============================
+\section{国内外研究现状}
+  在数据需求不断增加的大数据时代，爬虫技术的发展也日新月异。与此同时，传统单一静态的爬虫识别技术已经无法满足现阶段的需求，研究相关领域的学者也一直在为反爬虫领域提供新的技术和新的思路。
+
+  Guo W等人首先针对传统与单个http 请求进行处理的爬虫识别算法提出新的改进，在他们的文章中，他们首先使用了session粒度的爬虫识别算法，重点关注人类访问session与爬虫访问session中对应的url请求资源类型（样式表，html，图片等）比例不同的特性，并对采集得到的相应的日志进行非实时的线下处理，提取出相关特征作为分类依据。这是最早的基于session的反爬虫机制。
+  
+  Derek Doran在他们的文章中使用了和Guo W等人类似的方法，他们在使用url请求资源类型比例作为重要特征的同时，引入了离散马尔科夫链的概率模型，并使用该模型得出的log概率来判定访问时来自于人类还是爬虫。但是总体而言，该文章提出的模型并没有过多的创新，而且马尔科夫链的概率模型的计算过程，需要消耗大量的计算资源，不能够应用在实时的爬虫检测上。
+ 
+   与此同时，为了将爬虫识别模型应用到真实的业务场景中，而不仅仅作为一种离线的验证算法。Andoena Balla等人提出了实时的爬虫识别算法。在他们的文章中，他们还引入了如下的session粒度下的特征：（1）head request的百分比 （2）2xx返回的比例 （3）3xx返回的比例 （4）页面资源的访问比例 （5）夜间访问的比例  （6）访问两个页面之间的平均时间  （7）其他二进制文件请求的比例。
+   
+   Andoena Balla的对session粒度使用了比较完备的特征，为后来基于session粒度的爬虫识别的相关研究，提供了有价值的参考。但对于如何进行session的分类以及如何处理session过长的问题，该文章并没有提供合格的解决方案。Yi Liu在他们的文章中提出了一种解决session过长问题的方法。他们采用了滑动窗口的机制，对每一次处理的http请求做了相关的限制，对在最大程度上保证了处理的http请求的相关性，并在一个窗口内使用SVM来区分普通用户和爬虫。此外，他们还以他们的模型为基础，实现了一整套支持实时爬虫检测的系统。但是该文章在session粒度的特征方面，并没有充分利用session中的包含的信息。
+ 
+  Shengye Wan在他的文章中综合了现有的反爬虫技术，提出一个名为PathMarker的模型。PathMarker会将url地址信息以及当前访问的用户信息加密，并替换掉原有的url地址。由此标注每个请求所对应的session，并利用之前的研究中使用的session特征，来区分爬虫和人类。这种方案可以在很长的时间窗口内持续地追踪爬虫在某个网站的爬行轨迹，可以用于分析爬虫的爬行目标和爬行策略，并且在某种程度上可以追踪使用分布式ip池的爬虫群。 PathMarker在session分类良好的情况下能够产生较好的爬虫检测效果，但是其缺点也很明显，需要修改所有返回请求中的所有链接地址，在真实的生产环境下难以提供灵活的部署方案。此外，一旦访问的爬虫使用对抗性的爬虫策略，PathMarker的session分类效果将不再准确，从而影响最终的爬虫识别效果。
+
+  总体而言，现有的反爬虫技术主要注重于爬虫识别技术的发展，发现可疑爬虫后的阻断方法，往往是单一的阻断或者使用captcha机制进行验证，无法对恶意爬虫的作者起到威慑的作用。在爬虫识别技术的主流技术中，在单粒度上识别的检测技术，一旦遇到采用字段变异的爬虫，便无法发挥应有的作用。而在session粒度上识别的检测技术，在实时性检测上，往往都有较大的性能消耗。除此之外，大部分的爬虫识别模型都没有考虑到爬虫可能采用的反反爬虫手段，对于一些有着特殊对抗策略的爬虫，其识别效果将大打折扣。
+
+
+
+
+
+
+
+% 引用参考\ref{tab:papercomponents}
+
+  %  {\bfseries 论文题目} & \multicolumn{1}{c} {\bfseries 实时性} & \multicolumn{1}{c} {\bfseries 静态信息利用}  &  \multicolumn{1}{c} {\bfseries 动态信息利用}  &  \multicolumn{1}{c} {\bfseries 检测粒度} &  \multicolumn{1}{c} {\bfseries 性能损耗} &  \multicolumn{1}{c} {\bfseries 爬虫对抗与爬虫追踪} \\
+\centerline{}
+\begin{table}[h]
+  \caption{已有研究成果比较}
+  \label{tab:papercomponents}
+  \centering
+\begin{tabular}{|p{5cm}<{\centering}||p{1cm}<{\centering}|p{3cm}<{\centering}|p{1cm}<{\centering}|p{2cm}<{\centering}|p{1cm}<{\centering}|p{1cm}<{\centering}|}
+    \hline
+    论文题目                                                                                  & 实时性 & 静态信息利用                                                 & 动态信息利用 & 检测粒度        & 性能损耗 & 爬虫对抗 \\
+    \hline
+    Protecting Web Contents Against Persistent Crawlers                                   & Y   & refer, user agent, cookies                             & N      & session     & 高    & N    \\ 
+    \hline
+    Web robot detection techniques based on statistics of their requested URL resources   & N   & user agent,URL pattern                                 & N      & 单粒度/session & 高    & N    \\
+    \hline
+    RESEARCH ON AN ANTI-CRAWLING MECHANISM AND KEY ALGORITHM BASED ON SLIDING TIME WINDOW & Y   & N                                                      & N      & session     & 中    & N    \\ 
+    \hline
+    Detecting web robots using resource request patterns                                  & N   & N                                                      & N      & session     & 高    & N    \\
+    \hline
+    Real-time Web Crawler Detection                                                       & Y   & N                                                      & N      & session     & 中    & N    \\
+    \hline
+    Our paper (Crawler-Net)                                                               & Y   & user agent, http headers value, http headers key order & Y      & 单粒度/session & 中    & Y    \\
+    \hline
+    \end{tabular}
+\end{table}
+\centerline{}
+
+
+
+
+\section{研究目标和内容}
+本文的研究目标是提出并实现一种新型的针对恶意爬虫的检测和攻击的对抗性技术，用于在爬虫实时访问阶段，对爬虫进行实时监测与阻断，并针对识别出的、具有恶意探测行为和攻击行为的爬虫，在检测其相应的webdriver的类型和版本后，生成相对应的攻击载荷。
+
+并在该技术的基础上，实现恶意爬虫识别与攻击系统。该系统的目标功能为：1）捕获到目标网站的所有访问请求，并实时地将其按照session粒度进行分类；2）通过不同粒度下的数据分析，检测和识别HTTP请求中出现的爬虫；3）根据设定阈值，从爬虫session中筛选出恶意行为的爬虫；4）利用事先生成的攻击载荷攻击恶意爬虫，并收集相应攻击返回。
+
+基于以上研究目标，本文的主要研究内容包括以下几个部分：
+
+\subsection{对抗样本下session分类方法的研究}
+在普通的爬虫和正常的人类访问行为下，针对给定的http request序列进行session分类并不是一个困难的问题。通常我们在某一特定时间段内，将同一ip来源或者使用同一cookie的http request分类为同一个session，但是在存在对抗行为的恶意爬虫面前，这样粗糙的分类方式通常难以获得令人信服的分类结果。参考利用http请求的静态特征以及利用javascript执行得到的动态特征，以此得到一个更加精确的session分类结果，是我们研究关注的重要内容之一。此外，针对一个真实生产环境下收集的实时数据，如何实现实时的session分类处理，以及各类参数和阈值（如session分类的时间长度和序列长度）的合理设定，也是我们研究的一部分。
+
+\subsection{基于session粒度的爬虫识别与检测}
+传统基于单个http request的爬虫识别方法，仅仅基于一些http字段的静态特征，很容易使用一些额外的工具和算法对http字段进行变异，从而逃避传统反爬虫程序的检测。因此，我们考虑到从session中额外提取爬虫的特征，并参考原先的静态特征，共同作用于爬虫识别。目前已经有一些论文讨论到基于session的爬虫识别，并给出了相关了session粒度下的爬虫特征[4] [6] [7]，但是这些文章提出的一些特征存在一些问题：
+一部分特征实时检测的性能开销过大；
+一部分特征在数据集中并不显著，或者对恶意爬虫的支持不佳；
+因此，通过本次研究，我们还会得到一系列session的特征以及这些特征的相关阈值设定。
+
+\subsection{基于隐式浏览行为的爬虫识别}
+正常的人类浏览行为下，除了访问频率和访问间隔于爬虫存在差异之外，还会存在一部分隐式的浏览行为[9]。例如，在相关页面插入一些不在浏览器上渲染但是存在于html代码中的链接，在正常访问下不会被触发，但是遇到了爬虫的html link parser，则可能会被访问，由此我们可以判定访问该链接的请求以及对应的session均是来自于爬虫的。如何能够利用人类隐式的浏览行为，来进行更为精细准确的爬虫识别，也是本研究的重点。
+
+\subsection{针对爬虫webdriver的自动化漏洞挖掘技术}
+一旦识别出恶意爬虫，在此基础使用javascript探测其webdriver版本以及可能存在的漏洞类型，并通过此漏洞生成相应的攻击载荷实现对爬虫的攻击，这是我们系统的最终的目的。如何通过已知的webdriver版本，来生成有效的攻击载荷，我们需要借助于已经成熟的自动化漏洞挖掘技术。虽然单个的webdriver程序体积很大，但是因为我们目标的webdriver往往是开源的。因此，本课题将研究在在获得源代码的前提下，如何对程序功能进行分割或者采用一些其他的简化技术，预防可能出现的路径爆炸问题，并尽可能多地找到一些漏洞。
+
+
+\section{本文的组织结构}
+本文的组织结构如下：
+第一章为绪论，总体介绍爬虫技术，爬虫检测技术等相关概念，及研究恶意爬虫对抗技术的重要意义。并总结国内外工业界和学术界针对反爬虫技术的研究现状，并指出目前已经工具及分析方法的局限性，提出本文的研究目标和内容。
+
+
+第二章为主流爬虫技术的研究部分，通过对已有的爬虫技术的研究，对主流的爬虫依据其特性进行分类。并概述目前爬虫技术中使用的基本的爬行策略以及针对现有反爬虫技术发展而来的伪装策略，分析进行爬虫识别过程中的主要挑战和难点。最后重点分析具有动态处理功能的爬虫底层使用的无头浏览器技术及该技术的特性，讨论了针对无头浏览器的对抗技术实施的可能性。
+
+第三章为恶意爬虫检测技术的研究部分，爬虫的检测技术主要从三个方面入手：（1） 单粒度模式下的检测技术 （2）基于session粒度的检测技术  （3）基于隐式浏览行为的爬虫识别。其中session分类与特征提取是本文的核心研究内容之一。并在第三章的最后，介绍了我们的爬虫检测技术在三个不同数据集上的检测效果。
+
+第四章为恶意爬虫对抗技术的研究部分。重点介绍了四种对抗技术：（1）资源耗尽型的对抗技术 （2）进程crash类型的攻击技术 （3）数据窃取类型的攻击技术 （4）爬虫数据流追踪技术。爬虫检测技术产生的结果将作为生成对抗策略的依据，对抗策略将决定对抗技术的种类以及相应攻击载荷的生成。
+
+第五章为恶意爬虫对抗系统的架构研究和实现部分。通过对整个对抗系统运行流程的分析，设计了由四部分组成的具有较强健壮性的恶意爬虫对抗系统，并具体地介绍四部分间协同合作的运作方式。
+
+第六章为恶意爬虫对抗系统的评估和分析，将使用多策略爬虫工具测试整个系统的识别率和误报率，以及在高并发情况下的性能损失比率，并进一步分析产生这样结果可能的原因。
+
+最后是整篇文章的结论部分，总结全文的工作，对本文仍然存在的不足之处提出了更为深远地思考，同时包含了对未来爬虫、反爬虫技术互相迭代的展望。
+
+
+
+
+
+
+\chapter{主流爬虫技术的研究}
+
+\section{爬虫分类}
+网络爬虫大致可分为四种。通用网络爬虫，聚焦网络爬虫，增量式网络爬虫，深层网络爬虫[2,7]。
+
+通用爬虫：通用网络爬虫又称全网爬虫(Scalable Web Crawler)，主要的爬取对象是大型的门户网站、搜索引擎和大型的Web服务提供者。通常会从一个初始的URL地址开始，以其为爬取的种子，递归地搜索遍历该种子地址下的所有URL地址。
+
+聚焦式网络爬虫：聚焦网络爬虫(Focused Crawler)，又称主题网络爬虫(Topical Crawler)[8]，是指选择性地爬行那些与预先定义好的主题相关页面的网络爬虫。通常只需要爬取与其感兴趣的主题相关的页面，保存的页面内容数量少，更新快。
+
+增量网络爬虫：增量式网络爬虫(Incremental Web Crawler)将参照已下载的网页内容，采用增量更新的方式只爬取没有下载或者已经内容发生变化的页面。以较高的访问频次来保证爬取的内容的实时性，但是因其只请求和持久化增量的静态内容[9]，所以请求的数据量较少。
+
+深层网络爬虫：web页面按其存在方式一般分为表层网和深层网。表层网通常可以由搜索引擎检索，以超链接的形式能够到达，Deep Web指的是不能直接检索，隐藏在表单之后的网页[3]。深层网络爬虫（Deep Web Crawler)主要用于爬取普通爬虫无法爬取到的深层网络，通常是提交某些参数（如登录操作）后才能到达的页面[10]。
+
+
+\section{爬虫调度策略与爬行策略}
+爬虫的目的是在短时间内尽可能获得最多的高质量数据。当前有五种评估页面质量的机制[11]：
+Similarity 
+Backlink 
+Pagerank 
+Forwardlink 
+Location
+
+而为了爬虫的爬取速度，爬虫往往以并行地方式运行，单也引入了如下的问题[7]：
+
+重复性：线程增加的同时可能增加页面重复的几率
+通信带宽损耗：分布式爬虫之间的同步通信损耗大量的带宽和计算资源
+并行运行时，爬虫通常采取如下三种方式[7]：
+独立运行：所有爬虫独立运行，互不影响，全部爬取完成后，再统一处理爬行资源。
+动态队列分配：使用统一的任务队列分配爬虫的爬取任务，每一次爬虫从任务队列中获取到的爬取任务，都是动态且随机的。
+静态分配：在爬虫任务开始前，事先为所有的爬虫分派爬取的任务，在爬虫爬取过程中不再做额外的修改。
+对于通用爬虫而言，常用的策略主要有深度优先爬行和广度优先优先爬行两种[12]。
+深度优先：将链接深度从低到高排列，依次访问下一级网页链接直到不能深入为止。在完成一个分支网页的爬行任务后，返回上一个链接节点，进一步遍历其他链接。
+广度优先：按目录层次深浅来规划爬行的轨迹，从浅层的web目录开始爬行，低层次的目录爬行完毕后，再深入下一层继续爬行。可以有效的控制爬行的深度，避免无穷深层次分支的情况下无法走出陷阱。
+聚焦爬虫策略的关键是对访问页面和链接的重要性进行评分，并以此作为页面爬取先后的顺序的参考依据，而不同算法计算出的页面重要性也有所不同，从而导致爬虫爬行轨迹的不同。
+基于内容的爬行策略：Bra在他的论文中提出了Fish-Search算法[13]，以页面内容与爬虫的聚焦主题的相关性作为度量标准。假设存在鱼群，鱼群按照深度优先的策略在爬行空间中巡游，相关度高的分支，鱼群的数量会增加；而相关度低的分支，鱼群的数量会降低。通过这样的机制来保证主要的爬虫资源和时间都能够聚焦在感兴趣的主题上。 
+基于链接结构的爬行策略：Page-rank算法[14]主要用于对搜索引擎搜索到的内容进行结果排序，也可以用于评价链接的重要性。在爬虫选取爬行链接时会优先选取Page rank较大的页面中的链接作为优先爬取的对象。
+基于增强学习的爬行策略：Rennie 和 McCallum将增强学习（reinforcement learning)引入聚焦爬虫[15]，他们试图通过机器学习找到一组策略，使得在该策略的激励达到最优解。
+基于语境图的爬行策略：Diligenti提出一种通过建立语境图来描述不同网页之间相关度的算法[16]。用大量的数据训练出一个机器学习系统，利用该系统计算不同页面到某一主题页面的距离，以此作为确定访问顺序的参考.
+
+
+
+
+% 说明
+\input{tex/chap_instruction}
+
+% 示例
+\input{tex/chap_sample}
+
+% 总结
+\input{tex/chap_summary}
+
+% 参考文献
+% 2015版国标GBT7714-2015
+% 2005版国标GBT7714-2005
+\Bib{GBT7714-2015}{ref}
+
+% 附录
+\input{tex/chap_appendix}
+
+% 攻读学位期间成果
+\input{tex/chap_achievement}
+
+% 致谢
+\input{tex/chap_acknowledge}
+
+% 作者简介
+\input{tex/chap_biography}
+
+\vspace{5cm}
+
+This is \BUAAThesis{}, Happy TeXing! --- from WeiQM.
+
+\end{document}
