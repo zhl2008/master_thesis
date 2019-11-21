@@ -506,7 +506,7 @@ $$score = \frac {W_{ua} * M_{ua} + W_{url} * M_{url} + W_{other} * M_{other} + W
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/gradient_descent.png}
-  \caption{curl与chrome的访问请求对比}
+  \caption{session分类错误率梯度下降}
   \label{fig:logo}
 \end{figure}
 \centerline{}
@@ -1260,6 +1260,60 @@ afl-fuzz -i input/ -o output/ -m none -S fuzzer04   -- phantomjs_afl /root/fuzz/
 \end{figure}
 \centerline{}
 
+
+\subsection{PhantomJs漏洞分析}
+
+在确定能够触发漏洞的样本后，我们首先使用gdb尝试定位到具体的漏洞触发函数：
+
+\lstset{language=JavaScript}
+\begin{lstlisting}
+ gdb --args  /root/fuzz/phantomjs/bin/phantomjs /root/fuzz/crash/test2.js  test.svg 
+ \end{lstlisting}
+ 
+\centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/gdb_backtrace.png}
+  \caption{GDB backtrace}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+ 
+ 不难看出我们的漏洞存在QVector<QPainterPath::Element>::reallocData函数中，该函数文件位置为：phantomjs/src/qt/qtbase/src/corelib/tools/qvector.h。 我们在gdb中使用反汇编功能可以查看到触发漏洞具体的汇编代码为：
+ 
+ \centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/gdb_disassemble.png}
+  \caption{GDB 反汇编代码}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+ 
+ 由上图可知，在调用了函数QArrayData::allocate函数（使用c++filt工具还原其函数名）之后，函数将allocate分配的地址空间作为返回值存储于rax寄存器，并在之后对该地址中对应的成员变量的修改中触发了漏洞。通过查看当前的寄存器值，可以发现，QArrayData::allocate返回的地址空间指针为0x0，即空指针，因此之后对该指针指向的对象的成员变量操作时触发了空指针引用的错误。
+ 
+ 为了进一步探究allocate函数返回空指针的根本原因，我们修改源代码加入对allocate函数的传递参数的监控。
+ 
+  \centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/gdb_parameter.png}
+  \caption{allocate函数参数监控}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+
+  
+从结果可以看出，allocate传入的参数中代表分配内存的参数每次调用都在以指数级的形式增长，最多的情况下，整个phantomjs的进程已经占用到了系统的1G内存。由此，我们猜测，allocate对最大分配的内存空间有限制，一旦超过指定的大小，则返回空指针。而攻击载荷中的height=1E9\%正是消耗大量内存的关键，这个参数相当于将整张svg图片的画布放大了1000万倍。
+
+  \centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/svg_payload.png}
+  \caption{SVG 攻击载荷}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
 
 
 
