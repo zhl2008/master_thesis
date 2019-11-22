@@ -1003,33 +1003,130 @@ portscan.html，我们通过构建能够跨域的img标签，并将img标签中�
   \KwData{session\_{}key, src\_{}ip, cookies}
   \KwResult{payload generation}
 
-  Init black\_{}sessions;\\
-  Init black\_{}ips; \\
-  Init all\_{}sessions;\\  
+  $Init black\_{}sessions;$\\
+  $Init black\_{}ips;$ \\
+  $Init all\_{}sessions;$\\  
   
 \eIf{session\_{}key \textbf{is} valid \textbf{and} session\_{}key \textbf{in} black\_{}sessions}{
 	\If{request.src\_{}ip \textbf{not in} black\_{}ips}{
-		black\_{}ips append src\_{}ip
+		$black\_{}ips append src\_{}ip$
 	}
-        gen\_{}payload(session\_{}key)  
+        $gen\_{}payload(session\_{}key) $
 }{
 	\If{src\_{}ip  \textbf{in} black\_{}ips}{
 		\eIf{session\_{}key \textbf{in} all\_{}sessions}{
 			\If{session\_{}key  \textbf{not in} black\_{}sessions}{
-           			black\_{}sessions append session\_{}key
+           			$black\_{}sessions append session\_{}key$
 			}
-			gen\_{}payload(session\_{}key)
+			$gen\_{}payload(session\_{}key)$
     		}{ 
-		gen\_{}payload(random)
+		$gen\_{}payload(random)$
 		}
 	}
  }
  
 \If{finger\_{}print \textbf{not in} cookies}{
-	gen\_{}payload(fp\_{}generator)
+	$gen\_{}payload(fp\_{}generator)$
 }
 
 \end{algorithm}
+
+
+for request in all_requests:
+    # dynamic
+    if request.has_key(js_fp):
+        if request not in dynamic_session_group:
+            dynamic_session_group[js_fp] = [request]
+        else:
+            dynamic_session_group[js_fp].append(request)
+        
+    # static
+    else:
+        for session_group in static_session_group:
+            if calc_similarity(request,session_group) < threshold:
+                generate new_session_group
+                static_session_group[new_session_group] = [request]
+            else:
+                 static_session_group[session_group].append(request)
+
+
+\RestyleAlgo{boxed}
+\begin{algorithm}[!h]
+  \caption{session分类算法}
+  \KwData{static\_{}session\_{}group, dynamic\_{}session\_{}group}
+  \KwResult{crawler info in all\_{}session\_{}group}
+
+$Initialization$
+ 
+$all\_{}session\_{}group  \leftarrow static\_{}session\_{}group +  dynamic\_{}session\_{}group$ \\
+\For{session\_{}group \textbf{in} all\_{}session\_{}group}{
+	
+	\For{request \textbf{in} session\_{}group}{
+		\eIf{crawler\_{}check(request.crawler)}{
+			$session\_group.crawler  \leftarrow  "crawler"$\\
+		}{
+			\If{dynamic\_{}check(request)}{
+				$session\_{}group.crawler \leftarrow   "crawler" $\\
+			}
+		}
+		\If{malicious\_{}check(request)}{
+			$session\_{}group.crawler \leftarrow "malicious-crawler"$ \\
+		}
+	}
+	$session\_{}group.crawler \leftarrow session\_{}check(session\_{}group)$
+}
+
+\end{algorithm}
+
+
+\RestyleAlgo{boxed}
+\begin{algorithm}[!h]
+  \caption{session特征提取和恶意爬虫识别算法}
+  \KwData{static\_{}session\_{}group, dynamic\_{}session\_{}group}
+  \KwResult{crawler info in all\_{}session\_{}group}
+
+$Initialization$
+ 
+$all\_{}session\_{}group  \leftarrow static\_{}session\_{}group +  dynamic\_{}session\_{}group$ \\
+\For{session\_{}group \textbf{in} all\_{}session\_{}group}{
+	
+	\For{request \textbf{in} session\_{}group}{
+		\eIf{crawler\_{}check(request.crawler)}{
+			$session\_group.crawler  \leftarrow  "crawler"$\\
+		}{
+			\If{dynamic\_{}check(request)}{
+				$session\_{}group.crawler \leftarrow   "crawler" $\\
+			}
+		}
+		\If{malicious\_{}check(request)}{
+			$session\_{}group.crawler \leftarrow "malicious-crawler"$ \\
+		}
+	}
+	$session\_{}group.crawler \leftarrow session\_{}check(session\_{}group)$
+}
+
+\end{algorithm}
+
+
+
+
+for request in all_requests:
+    # dynamic
+    if request.has_key(js_fp):
+        if request not in dynamic_session_group:
+            dynamic_session_group[js_fp] = [request]
+        else:
+            dynamic_session_group[js_fp].append(request)
+        
+    # static
+    else:
+        for session_group in static_session_group:
+            if calc_similarity(request,session_group) < threshold:
+                generate new_session_group
+                static_session_group[new_session_group] = [request]
+            else:
+                 static_session_group[session_group].append(request)
+    
 
 
 
