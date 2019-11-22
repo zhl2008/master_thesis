@@ -324,9 +324,7 @@
 
 第四章为恶意爬虫对抗技术的研究部分。重点介绍了四种对抗技术：（1）资源耗尽型的对抗技术 （2）进程crash类型的攻击技术 （3）数据窃取类型的攻击技术 （4）爬虫数据流追踪技术。爬虫检测技术产生的结果将作为生成对抗策略的依据，对抗策略将决定对抗技术的种类以及相应攻击载荷的生成。
 
-第五章为恶意爬虫对抗系统的架构研究和实现部分。通过对整个对抗系统运行流程的分析，设计了由四部分组成的具有较强健壮性的恶意爬虫对抗系统，并具体地介绍四部分间协同合作的运作方式。
-
-第六章为恶意爬虫对抗系统的评估和分析，将使用多策略爬虫工具测试整个系统的识别率和误报率，以及在高并发情况下的性能损失比率，并进一步分析产生这样结果可能的原因。
+第五章为恶意爬虫对抗系统的实现和评估部分。通过对整个对抗系统运行流程的分析，设计了由四部分组成的具有较强健壮性的恶意爬虫对抗系统，并具体地介绍四部分间协同合作的运作方式。在系统评估部分，使用多策略爬虫工具测试整个系统的识别率和误报率，以及在高并发情况下的性能损失比率，并进一步分析产生这样结果可能的原因。
 
 最后是整篇文章的结论部分，总结全文的工作，对本文仍然存在的不足之处提出了更为深远地思考，同时包含了对未来爬虫、反爬虫技术互相迭代的展望。
 
@@ -999,6 +997,41 @@ portscan.html，我们通过构建能够跨域的img标签，并将img标签中�
 
 
 
+\RestyleAlgo{boxed}
+\begin{algorithm}[!h]
+  \caption{proxy中的request处理算法}
+  \KwData{session\_{}key, src\_{}ip, cookies}
+  \KwResult{payload generation}
+
+  Init black\_{}sessions;\\
+  Init black\_{}ips; \\
+  Init all\_{}sessions;\\  
+  
+\eIf{session\_{}key \textbf{is} valid \textbf{and} session\_{}key \textbf{in} black\_{}sessions}{
+	\If{request.src\_{}ip \textbf{not in} black\_{}ips}{
+		black\_{}ips append src\_{}ip
+	}
+        gen\_{}payload(session\_{}key)  
+}{
+	\If{src\_{}ip  \textbf{in} black\_{}ips}{
+		\eIf{session\_{}key \textbf{in} all\_{}sessions}{
+			\If{session\_{}key  \textbf{not in} black\_{}sessions}{
+           			black\_{}sessions append session\_{}key
+			}
+			gen\_{}payload(session\_{}key)
+    		}{ 
+		gen\_{}payload(random)
+		}
+	}
+ }
+ 
+\If{finger\_{}print \textbf{not in} cookies}{
+	gen\_{}payload(fp\_{}generator)
+}
+
+\end{algorithm}
+
+
 
 
 % 说明
@@ -1050,7 +1083,6 @@ portscan.html，我们通过构建能够跨域的img标签，并将img标签中�
 \end{lstlisting}
 
 此外，为了模拟分布式爬虫，我们在所有的请求的url中添加一个ip字段，该ip字段将会被作为爬虫请求的来源ip进行相应的处理。
-
 
 
 
