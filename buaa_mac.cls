@@ -462,7 +462,8 @@
   \ifthenelse{\equal{\@permission}{secret3}}{秘密~\ding{73}~{\bfseries 3}年}{
   \ifthenelse{\equal{\@permission}{secret5}}{秘密~\ding{73}~{\bfseries 5}年}{
   \ifthenelse{\equal{\@permission}{secret10}}{秘密~\ding{73}~{\bfseries 10}年}{
-  \ifthenelse{\equal{\@permission}{secret*}}{秘密~\ding{73}~永久}{
+  \ifthenelse{\equal{\@permission}{secret*}}{\relax}{
+  %\ifthenelse{\equal{\@permission}{secret*}}{秘密~\ding{73}~永久}{
   \ifthenelse{\equal{\@permission}{classified3}}{机密~\ding{73}~{\bfseries 3}年}{
   \ifthenelse{\equal{\@permission}{classified5}}{机密~\ding{73}~{\bfseries 5}年}{
   \ifthenelse{\equal{\@permission}{classified10}}{机密~\ding{73}~{\bfseries 10}年}{

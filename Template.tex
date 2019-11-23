@@ -151,7 +151,7 @@
 
 % 导师信息-{中文名}{英文名}{职称}
 \Tutor{李舟军}{Li Zhoujun}{教授}
-\Cotutor{何跃鹰}{He Yueying}{处长}
+\Cotutor{何跃鹰}{He Yueying}{高工}
 
 % 学生姓名-{中文名}{英文名}
 \Author{张浩凌}{Zhang Haoling}
@@ -159,34 +159,34 @@
 \StudentID{SY1706404}
 
 % 中图分类号
-\CLC{TP391.4}
+\CLC{TP309.2}
 
 % 时间节点-{月}{日}{年}
 \DateEnroll{09}{01}{2017}
 \DateGraduate{01}{31}{2020}
-\DateSubmit{11}{25}{2019}
-\DateDefence{  }{  }{    }
+\DateSubmit{}{}{}
+\DateDefence{}{}{}
 
 %%=================================================================
 % 摘要-{中文}{英文}
 \Abstract{%
-  随着各类基于大数据和AI的应用的兴起，能够快速廉价地获取大量有效数据的能力，成为互联网时代企业和个人竞争力的体现。因此，网络爬虫在数据收集收集方面的重要性逐渐凸显出来。但是，恶意爬虫同样给互联网用户和互联网服务提供者带来巨大的困扰，这些爬虫或者多线程高并发耗尽服务器的带宽和计算资源[1]，或者爬取个人敏感信息、高价值的商业数据用于不法用途。
+  随着各类基于大数据和AI的应用兴起，快速廉价地获取大量有效数据的能力，成为互联网时代企业和个人竞争力的体现。因此，网络爬虫在数据收集收集方面的重要性逐渐凸显出来。但是，恶意爬虫同样给互联网用户和互联网服务提供者带来了巨大的困扰，这些爬虫或者多线程、高并发的请求耗尽服务器的带宽和计算资源[1]，或者爬取个人敏感信息、高价值的商业数据用于不法用途。
 
-  因此，构建一个成熟有效的反爬虫系统，成为一个亟待解决的问题。但遗憾的是，传统的反爬虫方式过于保守和被动，在漏检率和误检率居高不下的情况下，往往只能通过单一的反制手段来限制爬虫（如IP封锁，访问频率限制，虚假数据等），在反爬虫的战争中收效甚微。为此，本文提出了一种新型的反爬虫的系统，融合爬虫检测技术，爬虫行为分析和溯源技术，并通过动态符号执行、模糊测试以及污点分析等二进制漏洞挖掘方法，挖掘爬虫使用的框架、处理脚本，无头浏览器驱动程序驱动程序的漏洞，并通过返回恶意的攻击载荷，对运行恶意爬虫的主机进行反向攻击，最终诱使恶意爬虫进程奔溃，甚至可能获取到恶意爬虫主机上的敏感数据以及系统权限。
+  因此，构建一个成熟有效的反爬虫系统，成为一个亟待解决的问题。但遗憾的是，传统的反爬虫机制过于保守和被动，在漏检率和误检率居高不下的情况下，且往往只能通过单一的反制手段来限制爬虫（如IP封锁，访问频率限制，虚假数据返回等），在反爬虫的对抗中收效甚微。为此，本文提出了一种新型的反爬虫的机制，融合了爬虫检测技术，爬虫行为分析和溯源技术，并通过动态符号执行、模糊测试以及污点分析等二进制漏洞挖掘方法，挖掘爬虫使用的框架、处理脚本以及无头浏览器驱动程序驱动程序的漏洞，并通过返回恶意的攻击载荷，对运行恶意爬虫的主机进行反向攻击，最终诱使恶意爬虫进程奔溃，甚至有可能获取到恶意爬虫主机上的敏感数据以及系统权限。
 
-  此外，本文将遵循上述的设计思路，实现该反爬虫系统的原型系统Crawler-Net(捕虫网），并将Crawler-Net部署在模拟的业务系统上，使用具有不同请求策略的爬虫流量混合正常的用户访问进行测试，从漏检率、误检率、系统性能损失等多方面的指标来评估反爬虫系统的性能。
+  此外，本文将遵循上述的设计思路，实现该反爬虫系统的原型系统Crawler-Net(捕虫网），并将Crawler-Net部署在模拟的业务系统上，使用具有不同请求策略的爬虫流量混合正常的用户访问进行测试，从系统性能损失、准确率、召回率等多方面的指标来评估反爬虫系统的性能。
   }{%
-  With the flourish of the Applications based on the Big Data and Artificial Intelligence, it has aroused our attention in how to collect numerous valid data rapidly at the least cost, which could be regarded as an aspect of competitive competence both for the individuals and the companies. And thus, the power of the crawlers in collecting data has been addressed. However, there are plenty of malicious crawlers filling in the cyberspace, try to deplete the servers' resource with endless requests concurrently, or theft the sensitive individual's information or commercial data for illegal use.
+  With the flourish of the Applications based on Big Data and Artificial Intelligence, it has aroused our attention in how to collect numerous valid data rapidly at the least cost, which could be regarded as an aspect of competitive competence both for the individuals and the companies. And thus, the power of the crawlers in collecting data has been addressed. However, there are plenty of malicious crawlers filling in cyberspace, try to deplete the servers' resource with endless requests concurrently, or theft the sensitive individual's information or commercial data for illegal use.
 
-  Therefore, we are supposed to build up a feasible, active and robust anti-crawling system to stop those malicious crawlers, while most of the contemporary anti-crawling systems are using passive strategies. Those anti-crawling systems could only harness single mechanism to block the crawlers( such as IP blocking, limit the frequency of requests, fake data), and that does not seem to be effective in most cases. In this paper, we propose an anti-crawling system, which combines the crawler detection with the analysis of crawler's behaviors, then utilizes the dynamic symbolic execution, fuzzing and dynamic taint analysis， to excavate the vulnerabilities of the frameworks, the handling scripts and the headless web-driver binaries of the crawlers. Ultimately, malicious payloads would be generated to feed the crawler when it crawls our web pages, leading it to crash down or even obtain the sensitive data as well as the system privileges from the crawler's host. 
+  Therefore, we are supposed to build up a feasible, active and robust anti-crawling system to stop those malicious crawlers, while most of the contemporary anti-crawling systems are using passive strategies. Those anti-crawling systems could only harness naive mechanism to block the crawlers( such as IP blocking, limit the frequency of requests, fake data), and that does not seem to be effective in most cases. In this paper, we propose an anti-crawling mechanism, which combines the crawler detection with the analysis of crawler's behaviors, then utilizes the dynamic symbolic execution, fuzzing and dynamic taint analysis， to excavate the vulnerabilities of the frameworks, the handling scripts and the headless web-driver binaries of the crawlers. Ultimately, malicious payloads would be generated to feed the crawler when it crawls our web pages, leading it to crash down or even obtain the sensitive data as well as the system privileges from the crawler's host. 
 
   In addition, at the end of the paper, I would build up the prototype of the anti-crawling system called "Crawler Net" according to the technologies and mechanisms mentioned before, with the deployment to the web application in a simulated production environment. Furthermore, several tests would be conducted with the requests generated by various types of crawlers and the requests from normal user to testify its ability to block the crawlers and the performance once deployed.
 }
 % 关键字-{中文}{英文}
 \Keyword{%
-    恶意爬虫，反爬虫机制，无头浏览器，爬虫检测，爬虫溯源，动态符号执行，模糊测试
+    恶意爬虫，无头浏览器，爬虫检测，爬虫追踪，爬虫对抗，动态符号执行，模糊测试
   }{%
-    malicious crawler, anti-crawling system, headless browser, crawler detection, crawler trace, dynamic symbolic execution, fuzzing test
+    malicious crawler, headless browser, crawler detection, crawler trace, anti-crawling mechanism, dynamic symbolic execution, fuzzing test
 }
 
 % 图标目录
@@ -195,12 +195,15 @@
 % 缩写定义 按tabular环境或其他列表环境编写
 \Abbreviations{ \centering
 \begin{tabular}{cl}
-  $E$ & 能量 \\
-  $m$ & 质量 \\
-  $c$ & 光速 \\
-  $P$ & 概率 \\
-  $T$ & 时间 \\
-  $v$ & 速度 \\
+  $W_{ua}$ & User-Agent字段权重 \\
+  $M_{ua}$ & User-Agent匹配状态 \\
+  $W_{url}$ & URL字段权重 \\
+  $M_{url}$ & URL匹配状态 \\
+  $W_{other}$ & 其余字段权重 \\
+  $M_{other}$ & 其余字段匹配状态 \\
+  $W_{order}$ & 字段顺序权重 \\
+  $M_{order}$ & 字段顺序匹配状态 \\
+  $C_{field}$ & HTTP字段数目 \\
 \end{tabular}
 }
 
@@ -226,13 +229,13 @@
 
 %%============================
 \section{研究背景及意义}
-机器学习，数据挖掘等大量数据依赖型的技术在高速发展的同时，对于相关数据的质和量都提出了更高的要求。网络爬虫，又称网络蜘蛛或者网络机器人，在这样一个数据消费的时代，扮演着数据搬运者和传递者的角色。在其运行的生命周期中，往往会按照开发者预设的规则，爬取指定的URL地址或者URL地址列表，并将获取到的数据预处理成标准化的格式[2]。
+机器学习，数据挖掘等大量数据依赖型的技术在高速发展的同时，对于相关数据的质和量都提出了更高的要求。网络爬虫，又称网络蜘蛛或者网络机器人，在这样一个数据消费的时代，扮演着数据搬运者和传递者的角色。在其运行的生命周期中，往往会按照开发者预设的策略，爬取指定的URL地址或者URL地址列表，并将获取到的数据处理成标准化的格式[2]。
 
 普通的网络爬虫并没有危害，相反，搜索引擎存储数据的来源都是基于大量分布式网络爬虫爬取得到的结果，网络爬虫在数据传递过程中起到至关重要的重要。但是多线程高并发的失控爬虫，针对网站隐私数据的窃密爬虫，以及不遵守爬虫道德规范的恶意爬虫，都对网络空间健康的生态环境提出了巨大的挑战。
 
-爬虫失控往往是具有多线程操作的通用型爬虫，未能控制爬行时间间隔，或者因为未添加地址环回检测的处理逻辑，在处理特殊的地址链接时陷入死循环中。失控的爬虫通常给网站的性能资源和带宽资源带来巨大的消耗，甚至会影响正常人类用户的体验，这样的爬虫对网站的影响相当于是DDOS攻击[1]。每年的三月份，是失控爬虫的高发期，原因正是因为大量的硕士在写论文时会爬取网站数据用于数据挖掘或者机器学习。
+爬虫失控往往是具有多线程行为的通用型爬虫，未能控制其爬行时间间隔，或者因为未添加地址环回检测的处理逻辑，在处理特殊的地址链接时陷入死循环中。失控的爬虫通常给网站的性能资源和带宽资源带来巨大的消耗，甚至会影响正常人类用户的体验，这样的爬虫对网站的影响相当于是DDOS攻击[1]。每年的三月份，是失控爬虫的高发期，原因正是因为大量的硕士在写论文时会爬取网站数据用于数据挖掘或者机器学习。
 
-此外，部分互联网公司会爬取其他同行的优质数据用于商业用途，在给其竞争对手带来经济效益的损失的同时，还会促进产业内部恶性竞争的循环。例如，马蜂窝网站的用户评论数据涉嫌造假事件。甚至在一些情况下，恶意爬虫甚至会爬取敏感个人信息用于不法用途，例如某大数据公司非法爬取个人信息被起诉一案。
+此外，部分互联网公司会爬取其他同行的优质数据用于商业用途，在给其竞争对手带来经济效益的损失的同时，还会促进产业内部恶性竞争的循环。例如，马蜂窝网站的用户评论数据涉嫌造假事件。甚至在一些情况下，恶意爬虫甚至会爬取敏感个人信息用于不法用途，例如某大数据公司因非法爬取个人信息被起诉一案。
 
 某些由黑客或者APT组织控制的爬虫，在爬取某些CMS系统或者web中间件的版本信息后，会使用相应的攻击向量攻击脆弱主机[6]，给网站服务提供者及使用者造成巨大的损失。
 网络空间一直是爬虫与反爬虫战斗的前线，随着反反爬虫技术的不断迭代更新，传统的静态、单一、被动与非实时的反爬虫技术难以与之对抗，或者又因为部署成本和部署带来的性能损失而被束之高阁。
@@ -241,17 +244,17 @@
 \section{国内外研究现状}
   在数据需求不断增加的大数据时代，爬虫技术的发展也日新月异。与此同时，传统单一静态的爬虫识别技术已经无法满足现阶段的需求，研究相关领域的学者也一直在为反爬虫领域提供新的技术和新的思路。
 
-  Guo W等人首先针对传统与单个http 请求进行处理的爬虫识别算法提出新的改进，在他们的文章中，他们首先使用了session粒度的爬虫识别算法，重点关注人类访问session与爬虫访问session中对应的url请求资源类型（样式表，html，图片等）比例不同的特性，并对采集得到的相应的日志进行非实时的线下处理，提取出相关特征作为分类依据。这是最早的基于session的反爬虫机制。
+  Guo W等人首先针对传统针对单个HTTP 请求进行处理的爬虫识别算法提出新的改进。在他们的文章中，他们首先使用了session粒度的爬虫识别算法，重点关注人类访问session与爬虫访问session中对应的URL请求资源类型（样式表，html，图片等）比例不同的特性，并对采集得到的相应日志进行非实时的线下处理，提取出相关特征作为分类依据。这是最早的基于session的反爬虫机制。
   
-  Derek Doran在他们的文章中使用了和Guo W等人类似的方法，他们在使用url请求资源类型比例作为重要特征的同时，引入了离散马尔科夫链的概率模型，并使用该模型得出的log概率来判定访问时来自于人类还是爬虫。但是总体而言，该文章提出的模型并没有过多的创新，而且马尔科夫链的概率模型的计算过程，需要消耗大量的计算资源，不能够应用在实时的爬虫检测上。
+  Derek Doran在他们的文章中使用了和Guo W等人类似的方法，他们在使用URL请求资源类型比例作为重要特征的同时，引入了离散马尔科夫链的概率模型，并使用该模型得出的概率来判定访问的来源。但是总体而言，该文章提出的模型并没有过多的创新，而且马尔科夫链概率模型的计算过程，需要消耗大量的计算资源，不能够应用在实时的爬虫检测上。
  
-   与此同时，为了将爬虫识别模型应用到真实的业务场景中，而不仅仅作为一种离线的验证算法。Andoena Balla等人提出了实时的爬虫识别算法。在他们的文章中，他们还引入了如下的session粒度下的特征：（1）head request的百分比 （2）2xx返回的比例 （3）3xx返回的比例 （4）页面资源的访问比例 （5）夜间访问的比例  （6）访问两个页面之间的平均时间  （7）其他二进制文件请求的比例。
+   与此同时，为了将爬虫识别模型应用到真实的业务场景中，而不仅仅作为一种离线的验证算法。Andoena Balla等人提出了实时的爬虫识别算法。在他们的文章中，他们还引入了如下的session粒度下的特征：（1）head request的百分比 （2）2xx返回状态的比例 （3）3xx返回状态的比例 （4）页面资源的访问比例 （5）夜间访问的比例  （6）访问两个页面之间的平均时间  （7）其他二进制文件请求的比例。
    
-   Andoena Balla的对session粒度使用了比较完备的特征，为后来基于session粒度的爬虫识别的相关研究，提供了有价值的参考。但对于如何进行session的分类以及如何处理session过长的问题，该文章并没有提供合格的解决方案。Yi Liu在他们的文章中提出了一种解决session过长问题的方法。他们采用了滑动窗口的机制，对每一次处理的http请求做了相关的限制，对在最大程度上保证了处理的http请求的相关性，并在一个窗口内使用SVM来区分普通用户和爬虫。此外，他们还以他们的模型为基础，实现了一整套支持实时爬虫检测的系统。但是该文章在session粒度的特征方面，并没有充分利用session中的包含的信息。
+   Andoena Balla从session粒度抽取了比较完备的特征，为后来基于session粒度的爬虫识别的相关研究，提供了有价值的参考。但对于如何进行session的分类以及如何处理session过长的问题，该文章并没有提供合格的解决方案。Yi Liu在他们的文章中提出了一种解决session过长问题的方法。他们采用了滑动窗口的机制，对每一次处理的HTTP请求做了相关的限制，在最大程度上保证了处理的HTTP请求的相关性，并在一个窗口内使用SVM来区分普通用户和爬虫。此外，他们还以他们的模型为基础，实现了一整套支持实时爬虫检测的系统。但是该文章在session粒度的特征方面，并没有充分利用session中的包含的信息。
  
-  Shengye Wan在他的文章中综合了现有的反爬虫技术，提出一个名为PathMarker的模型。PathMarker会将url地址信息以及当前访问的用户信息加密，并替换掉原有的url地址。由此标注每个请求所对应的session，并利用之前的研究中使用的session特征，来区分爬虫和人类。这种方案可以在很长的时间窗口内持续地追踪爬虫在某个网站的爬行轨迹，可以用于分析爬虫的爬行目标和爬行策略，并且在某种程度上可以追踪使用分布式ip池的爬虫群。 PathMarker在session分类良好的情况下能够产生较好的爬虫检测效果，但是其缺点也很明显，需要修改所有返回请求中的所有链接地址，在真实的生产环境下难以提供灵活的部署方案。此外，一旦访问的爬虫使用对抗性的爬虫策略，PathMarker的session分类效果将不再准确，从而影响最终的爬虫识别效果。
+  Shengye Wan在他的文章中综合了现有的反爬虫技术，提出一个名为PathMarker的模型。PathMarker会将URL地址信息以及当前访问的用户信息加密，并替换掉原有的URL地址。由此标注每个请求所对应的session，并利用之前的研究中使用的session特征，来区分爬虫和人类。这种方案可以在很长的时间窗口内持续地追踪爬虫在某个网站的爬行轨迹，可以用于分析爬虫的爬行目标和爬行策略，并且在某种程度上可以追踪使用分布式ip池的爬虫群。 PathMarker在session分类良好的情况下能够产生较好的爬虫检测效果，但是其缺点也很明显，需要修改所有返回请求中的所有链接地址，在真实的生产环境下难以提供灵活的部署方案。此外，一旦访问的爬虫使用对抗性的爬虫策略，PathMarker的session分类效果将不再准确，从而影响最终的爬虫识别效果。
 
-  总体而言，现有的反爬虫技术主要注重于爬虫识别技术的发展，发现可疑爬虫后的阻断方法，往往是单一的阻断或者使用captcha机制进行验证，无法对恶意爬虫的作者起到威慑的作用。在爬虫识别技术的主流技术中，在单粒度上识别的检测技术，一旦遇到采用字段变异的爬虫，便无法发挥应有的作用。而在session粒度上识别的检测技术，在实时性检测上，往往都有较大的性能消耗。除此之外，大部分的爬虫识别模型都没有考虑到爬虫可能采用的反反爬虫手段，对于一些有着特殊对抗策略的爬虫，其识别效果将大打折扣。
+  总体而言，现有的反爬虫技术主要注重于爬虫识别技术的发展，对于发现可疑爬虫后的阻断方法，往往是单一的阻断或者使用captcha机制进行验证，无法对恶意爬虫的作者起到威慑的作用。在爬虫识别的主流技术中，单粒度上识别的检测技术，一旦遇到采用字段变异的爬虫，便无法发挥应有的作用。而在session粒度上识别的检测技术，在实时性检测上，往往都有较大的性能消耗。除此之外，大部分的爬虫识别模型都没有考虑到爬虫可能采用的反反爬虫手段，对于一些有着特殊对抗策略的爬虫，其识别效果将大打折扣。
 
 
 
@@ -1240,6 +1243,18 @@ Yes     &     1000/10  &     144.40s &  16296kB   &  1444.04ms    &  96.68kB/s\\
 \item[(3)] 出现少量的识别错误是因为在部分请求中，点击了服务器上不存在的链接，导致了一定数量的404错误，分析该错误后发现是服务器上的配置错误。
 \end{itemize}
 
+
+\subsection{爬虫对抗效果}
+我们通过手动降低恶意爬虫识别的阈值，将爬虫所在的session以及ip列入黑名单，并启用所有的攻击载荷。一段时间后，部分爬虫因为执行了资源消耗型的攻击载荷，向服务器发送的请求速度显著降低。部分爬虫因为执行了信息窃取型的攻击载荷，会将自身内网相关的敏感信息泄露到到了指定的远程服务器上。甚至部分使用Phantomjs作为webdriver的爬虫，因为触发了phantomjs的内存破坏漏洞的攻击载荷，爬虫进程直接奔溃退出。
+
+\centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/crash_crawler.png}
+  \caption{爬虫对抗效果图}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
 
 
 % 说明
