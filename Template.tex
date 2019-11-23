@@ -994,8 +994,43 @@ portscan.html，我们通过构建能够跨域的img标签，并将img标签中�
 本章主要介绍了对抗恶意爬虫的三种攻击载荷。资源耗尽型攻击载荷可以针对大部分使用无头浏览器的爬虫，但是因为其攻击原理和攻击载荷都比较简单，容易被恶意爬虫作者发现，并指定相关的绕过策略，无法做为长久使用的攻击载荷。信息窃取类攻击载荷的隐蔽性较强，能够在爬虫渲染页面过程中隐秘地泄露出信息，但攻击载荷的利用条件比较严苛。需要相应的环境的支持，以及特殊的配置。在真实场景下，能够触发的概率不高。对于本章重点介绍的通过漏洞挖掘技术发现的内存破坏型攻击载荷，虽然其漏洞挖掘过程复杂，但是一旦发现、复现相关漏洞，并构造出相应的攻击载荷，将会给恶意爬虫带来降维打击。调试难度高，漏洞函数调用层次深，这些因素都对恶意爬虫作者提出了巨大的挑战，使得内存破坏型漏洞成为恶意爬虫对抗中的”大杀器“。以phantomjs的内存破坏漏洞为例，该漏洞不需要phantomjs去执行javascript，只要存在对页面的渲染，就可以触发该攻击载荷，通过空指针引用直接导致爬虫进程奔溃退出。
 
 
+\chapter{恶意爬虫检测与对抗系统的实现与评估}
 
 
+
+\section{恶意爬虫检测与对抗系统架构设计}
+
+整个恶意爬虫检测与对抗系统根据不同的功能，总共分为四个模块：
+
+\begin{itemize}
+\item proxy：转发所有流量到指定服务器，记录所有请求到数据库，并根据相应规则，在返回的数据中注入相关的载荷。注入的载荷包含对请求来源的指纹和动态信息的收集脚本，使用taint-link技术污染的隐藏链接，以及针对恶意爬虫的攻击载荷。
+\item server：模拟的web服务器，包含一定的目录结构以及深层次的网页，作为爬虫爬取的目标网站。
+\item crawler：使用多策略爬虫宿主系统模拟出的爬虫，包含普通爬虫以及恶意爬虫。
+\item handler：恶意爬虫检测与对抗系统的核心。包含请求数据库，规则数据库与相应处理进程。负责检测恶意爬虫并根据相关信息，控制proxy返回的攻击载荷。
+\end{itemize}
+
+四个模块的协作关系如下图所示，所有模块使用docker-composer统一管理：
+
+\centerline{}
+\begin{figure}[!h]
+  \centering
+  \includegraphics[width=0.68\textwidth]{images/architecture.png}
+  \caption{系统架构}
+  \label{fig:logo}
+\end{figure}
+\centerline{}
+
+需要注意的是，为了兼顾请求处理的实时性，session分类与恶意爬虫识别功能是与请求处理部分异步进行的，这也意味着恶意爬虫的发现会有一定的延迟效应。但只要恶意爬虫的session被识别出来，相应的ip以及session key会被标记为黑名单，此后所有来自该ip和session key的请求都将会被阻断。
+该恶意爬虫的对抗系统的全部源代码在gitlab上开源(添加引用）。
+
+
+
+\section{恶意爬虫检测与对抗系统具体实现}
+我们的核心代码位于proxy模块以及handler模块，我们重点介绍这两部分的具体实现。
+
+\subsection{proxy模块具体实现}
+
+proxy模块实现的功能是对request的预处理、转发以及response的载荷注入。在request的预处理过程中，首先将原始的HTTP request转为程序可以处理的json格式的数据，随后提取HTTP request中的ip地址以及正确的session，并使用规则库中的相关规则检查ip与session，如果ip与session任意元素出现在黑名单中，则使用类似污点传播技术的方法，将另一元素也存储与黑名单中。进一步使用相关算法，分析出爬虫使用的无头浏览器的类型后，proxy模块会生成对应的攻击载荷，替换掉原始的返回数据。除了返回攻击性的载荷之外，proxy模块还可以在服务器返回的html页面中通过iframe标签隐蔽地插入动态信息收集代码，用于收集访问者浏览器的指纹和其他的一些动态信息。proxy中对request的处理算法如下所示：
 
 \RestyleAlgo{boxed}
 \begin{algorithm}[!h]
@@ -1003,20 +1038,20 @@ portscan.html，我们通过构建能够跨域的img标签，并将img标签中�
   \KwData{session\_{}key, src\_{}ip, cookies}
   \KwResult{payload generation}
 
-  $Init black\_{}sessions;$\\
-  $Init black\_{}ips;$ \\
-  $Init all\_{}sessions;$\\  
+  $Init$ $black\_{}sessions$\\
+  $Init$ $black\_{}ips$ \\
+  $Init$ $all\_{}sessions$\\  
   
 \eIf{session\_{}key \textbf{is} valid \textbf{and} session\_{}key \textbf{in} black\_{}sessions}{
 	\If{request.src\_{}ip \textbf{not in} black\_{}ips}{
-		$black\_{}ips append src\_{}ip$
+		$black\_{}ips$ \textbf{append} $src\_{}ip$
 	}
         $gen\_{}payload(session\_{}key) $
 }{
 	\If{src\_{}ip  \textbf{in} black\_{}ips}{
 		\eIf{session\_{}key \textbf{in} all\_{}sessions}{
 			\If{session\_{}key  \textbf{not in} black\_{}sessions}{
-           			$black\_{}sessions append session\_{}key$
+           			$black\_{}sessions$ \textbf{append} $session\_{}key$
 			}
 			$gen\_{}payload(session\_{}key)$
     		}{ 
@@ -1032,51 +1067,45 @@ portscan.html，我们通过构建能够跨域的img标签，并将img标签中�
 \end{algorithm}
 
 
-for request in all_requests:
-    # dynamic
-    if request.has_key(js_fp):
-        if request not in dynamic_session_group:
-            dynamic_session_group[js_fp] = [request]
-        else:
-            dynamic_session_group[js_fp].append(request)
-        
-    # static
-    else:
-        for session_group in static_session_group:
-            if calc_similarity(request,session_group) < threshold:
-                generate new_session_group
-                static_session_group[new_session_group] = [request]
-            else:
-                 static_session_group[session_group].append(request)
+在处理完request之后，结构化的request会被存储到数据库中，等待handler的进一步session分类以及恶意爬虫识别进程的异步处理。
 
+\subsection{handler模块具体实现}
+handler模块运行后，会按照一定时间间隔，不断地执行session分类以及恶意爬虫识别进程。session分类进程使用了前文提到的静态session分类以及动态session分类方法，静态session分类选择的关键字段及相关阈值来自于前文通过梯度下降得到的阈值，而动态session分类则结合了静态session分类算法以及基于浏览器指纹生成算法产生的指纹进行分类。动态session分类适用于包含浏览器指纹信息的请求，而对于不包含指纹信息的请求，我们降级为静态session分类算法来进行处理。因此，通过该算法，我们最终得到的是静态session组以及动态session组。session分类算法的具体实现如下所示:
 
 \RestyleAlgo{boxed}
 \begin{algorithm}[!h]
   \caption{session分类算法}
-  \KwData{static\_{}session\_{}group, dynamic\_{}session\_{}group}
-  \KwResult{crawler info in all\_{}session\_{}group}
+  \KwData{all\_{}requests, threshold}
+  \KwResult{static\_{}session\_{}group, dynamic\_{}session\_{}group}
+  
 
-$Initialization$
- 
-$all\_{}session\_{}group  \leftarrow static\_{}session\_{}group +  dynamic\_{}session\_{}group$ \\
-\For{session\_{}group \textbf{in} all\_{}session\_{}group}{
+$Init$  $static\_{}session\_{}group$\\
+$Init$  $dynamic\_{}session\_{}group$\\
+
+\For{request \textbf{in} all\_{}requests}{
 	
-	\For{request \textbf{in} session\_{}group}{
-		\eIf{crawler\_{}check(request.crawler)}{
-			$session\_group.crawler  \leftarrow  "crawler"$\\
+	\eIf{request \textbf{has} js\_{}fp}{
+		\eIf{request \textbf{not in} dynamic\_{}session\_{}group}{
+			$dynamic\_{}session\_{}group[js\_{}fp]    \leftarrow  [request]$
 		}{
-			\If{dynamic\_{}check(request)}{
-				$session\_{}group.crawler \leftarrow   "crawler" $\\
+			 $dynamic\_{}session\_{}group[js\_{}fp]$ \textbf{append}  $request$
+		}
+	
+	}{
+		\For{session\_{}group \textbf{in} static\_{}session\_{}group}{
+			\eIf{calc\_{}similarity(request, session\_{}group) < threshold}{
+				$\textbf{generate}$  $new\_{}session\_{}group$
+				 $static\_{}session\_{}group[new\_{}session\_{}group]  \leftarrow  [request] $
+			}{
+				$static\_{}session\_{}group[session\_{}group]$    \textbf{append}    $request$
 			}
 		}
-		\If{malicious\_{}check(request)}{
-			$session\_{}group.crawler \leftarrow "malicious-crawler"$ \\
-		}
 	}
-	$session\_{}group.crawler \leftarrow session\_{}check(session\_{}group)$
 }
-
+ 
 \end{algorithm}
+
+在完成session的处理后，需要对分类出的所有的session进行恶意爬虫识别的处理。一旦某session被标记为爬虫，程序会统计该session中的ip情况情况以及session\_{}key，并将该session中出现较为频繁的ip以及session加入到黑名单数据库中。恶意爬虫的识别也是基于两个粒度进行，在单粒度下，我们会对该session中的每一个请求进行遍历，如果session中存在爬虫请求，则将该session标记为爬虫请求，与之类似，如果session中存在恶意爬虫请求，则将该session标记为恶意爬虫请求。在session粒度下，首先提取session对应的特征，如果满足事先设定的阈值条件，则相应地标记为爬虫或者恶意爬虫。 恶意爬虫识别算法如下所示:
 
 
 \RestyleAlgo{boxed}
@@ -1091,15 +1120,19 @@ $all\_{}session\_{}group  \leftarrow static\_{}session\_{}group +  dynamic\_{}se
 \For{session\_{}group \textbf{in} all\_{}session\_{}group}{
 	
 	\For{request \textbf{in} session\_{}group}{
-		\eIf{crawler\_{}check(request.crawler)}{
+		\If{crawler\_{}check(request.crawler)}{
 			$session\_group.crawler  \leftarrow  "crawler"$\\
-		}{
-			\If{dynamic\_{}check(request)}{
-				$session\_{}group.crawler \leftarrow   "crawler" $\\
-			}
+			$\textbf{break}$
 		}
+		
+		\If{dynamic\_{}check(request)}{
+			$session\_{}group.crawler \leftarrow   "crawler" $\\
+			$\textbf{break}$
+		}
+		
 		\If{malicious\_{}check(request)}{
 			$session\_{}group.crawler \leftarrow "malicious-crawler"$ \\
+			$\textbf{break}$
 		}
 	}
 	$session\_{}group.crawler \leftarrow session\_{}check(session\_{}group)$
@@ -1110,23 +1143,7 @@ $all\_{}session\_{}group  \leftarrow static\_{}session\_{}group +  dynamic\_{}se
 
 
 
-for request in all_requests:
-    # dynamic
-    if request.has_key(js_fp):
-        if request not in dynamic_session_group:
-            dynamic_session_group[js_fp] = [request]
-        else:
-            dynamic_session_group[js_fp].append(request)
-        
-    # static
-    else:
-        for session_group in static_session_group:
-            if calc_similarity(request,session_group) < threshold:
-                generate new_session_group
-                static_session_group[new_session_group] = [request]
-            else:
-                 static_session_group[session_group].append(request)
-    
+
 
 
 
