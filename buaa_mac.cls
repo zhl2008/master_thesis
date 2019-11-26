@@ -279,6 +279,8 @@
   },
   subsubsection={% 附加4级标题 : 小四号宋体加粗居左
     format=\zihao{-4} \songti \raggedright,
+    beforeskip=3.61pt,
+    afterskip=3.61pt,
   },
   paragraph={% 附加5级标题 : 小四号宋体居左
     format=\zihao{-4} \songti \raggedright,
