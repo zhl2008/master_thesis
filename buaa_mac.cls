@@ -262,15 +262,17 @@
 \ctexset{%
   chapter={%章标题 : 三号黑体居中 单倍行距 段前/段后0.5行 另起新页
     format=\zihao{3} \heiti \centering \thispagestyle{fancy},
-    %fixskip=true,% Not Support by XeLaTeX
-    beforeskip=19.27pt,
-    afterskip=22.48pt,
+    fixskip=true,% Not Support by XeLaTeX
+    beforeskip={.5\baselineskip},
+    afterskip={.5\baselineskip},
+    %beforeskip=-24pt,
+    %afterskip=8.61pt,
     %break=\clearpage,% Not Support by XeLaTeX
   },
   section={%节标题 : 四号黑体居左 单倍行距 段前/段后0.5行
     format=\zihao{4} \heiti \raggedright,
-    beforeskip=8.43pt,
-    afterskip=11.24pt,
+    beforeskip={.5\baselineskip},
+    afterskip={.5\baselineskip},
   },
   subsection={%条标题 : 小四号黑体居左 单倍行距 段前/段后0.5行
     format=\zihao{-4} \heiti \raggedright,
