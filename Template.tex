@@ -661,7 +661,7 @@ score = \frac {W_{ua} * M_{ua} + W_{url} * M_{url} + W_{other} * M_{other} + W_{
 
 \begin{figure}[!h]
   \centering
-  \includegraphics[width=0.68\textwidth]{images/fingerprint_generation.jpg}
+  \includegraphics[width=0.68\textwidth]{images/fingerprint_generation.png}
   \caption{浏览器指纹生成流程}
   \label{fig:logo}
 \end{figure}
@@ -793,7 +793,7 @@ selenium & window.webdriver \\
 
 \begin{figure}[!h]
   \centering
-  \includegraphics[width=0.68\textwidth]{images/taint_link.jpg}
+  \includegraphics[width=0.68\textwidth]{images/taint_link.png}
   \caption{taint-link技术实现流程}
   \label{fig:logo}
 \end{figure}
@@ -879,7 +879,7 @@ selenium & window.webdriver \\
 
 
 \subsection{使用的漏洞挖掘目标 （Targets)}
-爬虫常用的webdriver一般情况下都是开源的，因此，这些webdriver我们均可以使用上述工具来进行漏洞挖掘，其原理与大致流程并无太大差异。此处我们使用PhantomJS来作为我们的漏洞挖掘的目标，PhantomJS是一款支持支持javascript的可编程无头浏览器，可以运行在各种不同的操作系统上。选择PhantomJS作为漏洞挖掘目标，主要是基于三方面的考量：
+爬虫常用的webdriver一般情况下都是开源的，因此，这些webdriver我们均可以使用上述工具来进行漏洞挖掘，其原理与大致流程并无太大差异。此处我们使用PhantomJS来作为我们的漏洞挖掘的目标，PhantomJS是一款支持支持javascript的可编程无头浏览器，可以运行在各种不同的操作系统上\upcite{phantom}。选择PhantomJS作为漏洞挖掘目标，主要是基于三方面的考量：
 
 \begin{itemize}
 \item[(1)] PhantomJS更加轻量化。对比PhantomJS和常见的诸如chromium之类的无头浏览器，PhantomJS实现的特殊浏览器功能更少，更专注于为爬虫提供与网页交互的接口。因此，PhantomJS的代码的数量和fuzz的难度将远远低于其他的无头浏览器；

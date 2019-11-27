@@ -347,7 +347,7 @@
   position=bottom, margin=0mm, format=tabfigformat,
   aboveskip=6pt, belowskip=-15pt, justification=centerlast}
 \captionsetup[table]{
-  position=top, margin=0mm, format=tabfigformat,
+  position=top, margin=0mm, format=tabfigformat,labelfont=bf,
   aboveskip=0pt, belowskip=0pt, justification=centerlast}
 
 %出现在页面中间的浮动对象与上下方文本之间的垂直距离
@@ -837,7 +837,7 @@
 }
 \newcommand{\summary}{%结论
   \ctexset{chapter/numbering=false}
-  \chapter{结~~~~论}
+  \chapter{总结和展望}
   \setcounter{section}{0}%
   \setcounter{subsection}{0}%
   \setcounter{subsubsection}{0}%
