@@ -342,13 +342,12 @@
 \renewcommand{\thetable}{\arabic{table}}
 \renewcommand{\p@subfigure}{\thefigure}
 
-\DeclareCaptionFormat{tabfigformat}{\bf\songti\zihao{5}{#1~~#3}}
-\captionsetup[figure]{
-  position=bottom, margin=0mm, format=tabfigformat,
-  aboveskip=6pt, belowskip=-15pt, justification=centerlast}
-\captionsetup[table]{
-  position=top, margin=0mm, format=tabfigformat,labelfont=bf,
-  aboveskip=0pt, belowskip=0pt, justification=centerlast}
+\DeclareCaptionFormat{masterfigure}{\songti\bf\zihao{5}{#1\textrm{#2}#3}}
+\DeclareCaptionFormat{mastertable}{\songti\bf\zihao{5}{#1\textrm{#2}#3}}
+\DeclareCaptionFormat{masterlstlisting}{\songti\bf\zihao{5}{#1\textrm{#2}#3}}
+\captionsetup[figure]{format=masterfigure,labelsep=quad}
+\captionsetup[table]{format=masterfigure,labelsep=quad}
+\captionsetup[lstlisting]{format=masterlstlisting,labelsep=quad}
 
 %出现在页面中间的浮动对象与上下方文本之间的垂直距离
 %缺省为 12pt plus 2pt minus 2pt。

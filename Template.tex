@@ -391,7 +391,7 @@
 
 为了对抗这种javascript检查的机制，爬虫需要开启对于javascript脚本的支持。而传统的爬虫只有数据获取部分、数据解析的功能，并没有集成javascript执行的功能，因此需要借助于外部的javascript解释执行引擎。而无头浏览器（headless browser）作为一种成熟的解决方案，被爬虫技术广泛地作为javascript的执行引擎。无头浏览器和普通浏览器最大的区别是无头浏览器在启动后不会生成可视的UI界面，所有的javascript执行和画面渲染全部在后端进行，除此之外，无头浏览器和普通的浏览器基本上没有差异。比较著名的headless broswser有chromium以及PhantomJS，而且目前的主流浏览器大都支持headless模式，通过关闭UI和开放相应的操作接口来支持自动化。PhantomJS可以运行大部分主流的操作系统上，使用QtWebKit作为渲染引擎，可以支持各种各样的web标准，包括但不限于：DOM树解析，CSS选择器，JSON数据解析，CANCAS渲染等。
 
-对于具体的headless browser我们可能有着不同的选择，而selenium自动化测试工具，为我们与大部分的headless browser之间的交互提供了编程接口。在selenium升级到2.0之后\upcite{gojare2015analysis}，它重点发展了selenium webdriver，由以前的使用selenium server与浏览器通信到使用浏览器自身的webdriver与浏览器进行通信，绕过了javascript沙箱，提升了测试效率和对各个浏览器的兼容性。selenium对外分开放了大量API接口，可以使用各类编程语言控制测试过程。selenium架构图如图1所示：
+对于具体的headless browser我们可能有着不同的选择，而selenium自动化测试工具，为我们与大部分的headless browser之间的交互提供了编程接口。在selenium升级到2.0之后\upcite{gojare2015analysis}，它重点发展了selenium webdriver，由以前的使用selenium server与浏览器通信到使用浏览器自身的webdriver与浏览器进行通信，绕过了javascript沙箱，提升了测试效率和对各个浏览器的兼容性。selenium对外分开放了大量API接口，可以使用各类编程语言控制测试过程。selenium架构图如图\ref{fig:selenium}所示。
 
 
 \centerline{}
@@ -399,7 +399,7 @@
   \centering
   \includegraphics[width=0.68\textwidth]{images/selenium.png}
   \caption{selenium架构图}
-  \label{fig:logo}
+  \label{fig:selenium}
 \end{figure}
 \centerline{}
 
@@ -414,14 +414,14 @@
 \item 多策略爬虫工具生成数据集 （数据集c)
 \end{itemize}
 
-两个数据集的量级均在在10w+左右，其中数据集a记录的是清华大学某重要网站在某时间段内的所有请求。通过基于User-Agent的传统方法针对数据集a进行清洗，我们发现基于User-Agent的方法识别出请求中的24.3\%为来自各类爬虫的请求，爬虫的组成成分主要是来自于各大搜索引擎的爬虫以及专门针对清华网站的爬虫，如图2所示。因为该数据集几乎不存在对抗样本，因此我们使用IP作为session分类的标准，对全部的10w个请求进行session分类，在去除一些超长和超短的session之后，我们可以得到了以下的session的长度分布。
+两个数据集的量级均在在10w+左右，其中数据集a记录的是清华大学某重要网站在某时间段内的所有请求。通过基于User-Agent的传统方法针对数据集a进行清洗，我们发现基于User-Agent的方法识别出请求中的24.3\%为来自各类爬虫的请求，爬虫的组成成分主要是来自于各大搜索引擎的爬虫以及专门针对清华网站的爬虫，如图\ref{fig:crawlers}所示。因为该数据集几乎不存在对抗样本，因此我们使用IP作为session分类的标准，对全部的10w个请求进行session分类，在去除一些超长和超短的session之后，我们可以得到了如图\ref{fig:session_len}的session的长度分布。
 
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.8\textwidth]{images/THU_crawler_types.png}
   \caption{清华大学某网站爬虫组成}
-  \label{fig:logo}
+  \label{fig:crawlers}
 \end{figure}
 \centerline{}
 
@@ -430,7 +430,7 @@
   \centering
   \includegraphics[width=0.68\textwidth]{images/session_len_10_100.png}
   \caption{清华大学某网站访问session长度分布图}
-  \label{fig:logo}
+  \label{fig:session_len}
 \end{figure}
 \centerline{}
 
@@ -454,14 +454,14 @@
 在我们的模型中，我们对如下内容进行检测：
 
 \begin{itemize}
-\item[(1)] User-Agent字段： User-Agent字段主要是访问者的浏览器或者相应的HTTP函数库标识当前访问者所使用的agent的一个重要字段。大部分的普通爬虫，都会在其User-Agent字段放置与该爬虫有关的信息，通过该信息，我们可以快速地筛选出这些爬虫。但是，由于User-Agent字段是由用户发送的，用户可以随意修改该字段来达到隐蔽真实User-Agent的目的，因此，该字段是不可信的。在我们的模型中，通过参考已有的爬虫数据库，我们采用如下的关键字来处理user-agent字段：
+\item[(1)] User-Agent字段： User-Agent字段主要是访问者的浏览器或者相应的HTTP函数库标识当前访问者所使用的agent的一个重要字段。大部分的普通爬虫，都会在其User-Agent字段放置与该爬虫有关的信息，通过该信息，我们可以快速地筛选出这些爬虫。但是，由于User-Agent字段是由用户发送的，用户可以随意修改该字段来达到隐蔽真实User-Agent的目的，因此，该字段是不可信的。在我们的模型中，通过参考已有的爬虫数据库，我们采用如图\ref{fig:ua}的关键字来处理user-agent字段。
     
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/crawler_key_words.png}
   \caption{User-Agent关键字}
-  \label{fig:logo}
+  \label{fig:ua}
 \end{figure}
 \centerline{}
     
@@ -471,7 +471,7 @@
 
 \item[(4)] HTTP请求中的恶意攻击载荷：在真实的网络环境中，存在着大量漏洞扫描爬虫，这些爬虫发送的请求中往往带有恶意的攻击载荷，通过建立针对攻击载荷的数据库，我们可以很容易地过滤出这些爬虫。此处，我们参考的攻击载荷数据库来自于360天眼中的规则\upcite{malicious}。
 
-\item[(5)] HTTP请求头部字段的完备性：通常而言，大部分静态爬虫的主体（如curl工具以及一些基于python-requests库的简单爬虫）相对于浏览器而言功能复杂度较低，这也意味在数据交换中，他们使用的HTTP头部功能字段更少。如下是来源curl的爬虫的访问请求，以及使用chrome的访问请求的完整HTTP数据包对比。
+\item[(5)] HTTP请求头部字段的完备性：通常而言，大部分静态爬虫的主体（如curl工具以及一些基于python-requests库的简单爬虫）相对于浏览器而言功能复杂度较低，这也意味在数据交换中，他们使用的HTTP头部功能字段更少。如图\ref{fig:curl}是来源curl的爬虫的访问请求，以及使用chrome的访问请求的完整HTTP数据包对比。
 \end{itemize}
 
 \centerline{}
@@ -479,7 +479,7 @@
   \centering
   \includegraphics[width=0.68\textwidth]{images/http_request_contrast.png}
   \caption{curl与chrome的访问请求对比}
-  \label{fig:logo}
+  \label{fig:curl}
 \end{figure}
 \centerline{}
 
@@ -517,14 +517,14 @@ score = \frac {W_{ua} * M_{ua} + W_{url} * M_{url} + W_{other} * M_{other} + W_{
 \end{equation}
 
 
-此处的W为权重相关的系数，M表示相关字段是否匹配，匹配取值为1，反之取值为0，$C_{field}$ 表示相关字段的数目，用以避免字段过多的请求出现评分过高的情况。此外，我们还额外设置相应的阈值，一旦相似度超过该阈值，我们即可将两个HTTP请求归类为同一个session。我们在数据集a上测试我们的算法，并使用梯度下降的方法，求得这些参数的较优解。图6是我们使用该静态分类方法的效果图（梯度下降图），我们最终采用的参数取值，其分类准确率可以达到88\%。
+此处的W为权重相关的系数，M表示相关字段是否匹配，匹配取值为1，反之取值为0，$C_{field}$ 表示相关字段的数目，用以避免字段过多的请求出现评分过高的情况。此外，我们还额外设置相应的阈值，一旦相似度超过该阈值，我们即可将两个HTTP请求归类为同一个session。我们在数据集a上测试我们的算法，并使用梯度下降的方法，求得这些参数的较优解。图\ref{fig:gradient}是我们使用该静态分类方法的效果图（梯度下降图），我们最终采用的参数取值，其分类准确率可以达到88\%。
 
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/gradient_descent.png}
   \caption{session分类错误率梯度下降}
-  \label{fig:logo}
+  \label{fig:gradient}
 \end{figure}
 \centerline{}
 
@@ -656,14 +656,14 @@ chrome & 78.0.3904.84 & ios 12.2 & cef500876945eee2cef50087fadd5d18\\
 score = \frac {W_{ua} * M_{ua} + W_{url} * M_{url} + W_{other} * M_{other} + W_{order} * M_{order} + W_{dynamic} * M_{dynamic}} {C_{field} + 3}
 \end{equation}
 
-因为我们使用的动态指纹分类技术需要javascript的支持，原先的数据集a和b并没有记录下相关的信息，因此我们只能使用数据集c来作为评估基于静态/动态指纹的session分类方法的准确性。在动态指纹生成的整个过程，我们首先在请求中捕获没有动态指纹生成、动态指纹过期和动态指纹伪造的请求，针对该类请求发送相应的指纹生成javascript脚本。脚本执行完后，会产生浏览器的特定指纹，并将该指纹返回到服务器，服务器根据该指纹，分配并绑定session。大致流程如图7所示。
+因为我们使用的动态指纹分类技术需要javascript的支持，原先的数据集a和b并没有记录下相关的信息，因此我们只能使用数据集c来作为评估基于静态/动态指纹的session分类方法的准确性。在动态指纹生成的整个过程，我们首先在请求中捕获没有动态指纹生成、动态指纹过期和动态指纹伪造的请求，针对该类请求发送相应的指纹生成javascript脚本。脚本执行完后，会产生浏览器的特定指纹，并将该指纹返回到服务器，服务器根据该指纹，分配并绑定session。大致流程如图\ref{fig:fp}所示。
 
 
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/fingerprint_generation.png}
   \caption{浏览器指纹生成流程}
-  \label{fig:logo}
+  \label{fig:fp}
 \end{figure}
 \centerline{}
 
@@ -727,14 +727,14 @@ page资源比例 & 7.8\% & 54\% & 98.1\% \\
 \item 鼠标键盘事件
 \end{itemize}
 
-我们编写了一个get-dynamic.html使用如上特征用于收集浏览器的动态信息，相关代码位于附录A。我们收集了一部分常用浏览器在常用操作系统上的动态特征如图8所示，其中chromium，firefox（headless），以及PhantomJS是网络爬虫常用的无头浏览器。观察后，我们不难发现爬虫使用的无头浏览器与常见浏览器之间在动态特征上的差异。
+我们编写了一个get-dynamic.html使用如上特征用于收集浏览器的动态信息，相关代码位于附录A。我们收集了一部分常用浏览器在常用操作系统上的动态特征如图8所示，其中chromium，firefox（headless），以及PhantomJS是网络爬虫常用的无头浏览器。观察后，我们不难发现爬虫使用的无头浏览器与常见浏览器之间在动态特征上的差异，如图\ref{fig:dynamic}所示。
 
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=1\textwidth]{images/dynamic_features.png}
   \caption{常见浏览器/无头浏览器动态特征比较}
-  \label{fig:logo}
+  \label{fig:dynamic}
 \end{figure}
 \centerline{}
 
@@ -771,14 +771,14 @@ selenium & window.webdriver \\
 \end{itemize}
 
 
-为了检验本研究特殊规则的有效性，我们在公网环境下部署了我们的代码。在为期数天的时间窗口中，我们捕获了很多不同类型的爬虫。比较有典型的是抓取到的来自微软必应的爬虫特征信息：
+为了检验本研究特殊规则的有效性，我们在公网环境下部署了我们的代码。在为期数天的时间窗口中，我们捕获了很多不同类型的爬虫。比较有典型的是抓取到的来自微软必应的爬虫特征信息，如图\ref{fig:bing}所示。
 
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/bing_crawler.png}
   \caption{捕获的必应爬虫}
-  \label{fig:logo}
+  \label{fig:bing}
 \end{figure}
 \centerline{}
 
@@ -788,14 +788,14 @@ selenium & window.webdriver \\
 \subsection{taint link检验技术}
 爬虫和人类在访问同一个页面时，对页面的解析过程存在明显差异。人类对于页面的解读是基于最终的渲染效果的，但是爬虫依赖的通常是基于正则表达式的解析器，但这些解析器所得到的解析结果可能并不会在人类可见的页面中进行渲染。在此，人类和爬虫的这种差异为我们的检测爬虫提供了一种新的途径。
 
-将taint link技术部署在真实环境中时，通过会先在正常的页面中插入污点页面(taint page)，污点页面中存在污点链接(taint link)，该链接在html渲染时不会显示出来，但可能会被爬虫的link parser所识别，并产生相应的访问请求，我们把存在该类请求的session标记为爬虫。该技术不需要爬虫存在的解析javascript的能力，具有更强的适应性，大致实现流程如图10所示。
+将taint link技术部署在真实环境中时，通过会先在正常的页面中插入污点页面(taint page)，污点页面中存在污点链接(taint link)，该链接在html渲染时不会显示出来，但可能会被爬虫的link parser所识别，并产生相应的访问请求，我们把存在该类请求的session标记为爬虫。该技术不需要爬虫存在的解析javascript的能力，具有更强的适应性，大致实现流程如图\ref{fig:taint}所示。
 
 
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/taint_link.png}
   \caption{taint-link技术实现流程}
-  \label{fig:logo}
+  \label{fig:taint}
 \end{figure}
 \centerline{}
 
@@ -890,14 +890,14 @@ selenium & window.webdriver \\
 \end{itemize}
 
 
-PhantomJS的底层使用的是基于QT framework的webkit，我们fuzz的重心在该框架上。PhantomJS的整体架构如图11所示。
+PhantomJS的底层使用的是基于QT framework的webkit，我们fuzz的重心在该框架上。PhantomJS的整体架构如图\ref{fig:PhantomJS}所示。
 
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/phantomjs_arch.png}
   \caption{PhantomJS架构}
-  \label{fig:logo}
+  \label{fig:PhantomJS}
 \end{figure}
 \centerline{}
 
@@ -917,18 +917,18 @@ PhantomJS的底层使用的是基于QT framework的webkit，我们fuzz的重心�
 \subsection{漏洞挖掘效果}
 我们分别使用了三种工具来挖掘PhantomJS中可能存在的漏洞。我们使用Driller和AFL在不使用程序分割的情况下直接对原始的程序进行插桩和fuzz，而对于libfuzzer，我们将PhantomJS使用的QTwebkit从程序中单独剥离出来，并使用其基本的render功能对于从标准输入中读取的字符串进行渲染，具体实验流程参加附录C。 我们分别在三台服务器上使用三种不同的工具对PhantomJS进行fuzz，使用的fuzz种子文件包含了pdf，html，js，png，jpg以及svg文件格式。最终我们在使用了AFL的主机上观察到了以svg文件作为种子文件时产生了大量hangs错误。
 
-hangs不同于crash，hangs往往是因为产生的攻击载荷导致二进制程序的响应超时而出现问题，但通常也可能会导致最终的crash。我们尝试将所有导致的hangs的svg文件导出，并使用原二进制程序手动执行，最终发现hangs文件夹下一个名为 id:000013的输入文件可以导致PhantomJS程序在渲染其内容产生奔溃。
+hangs不同于crash，hangs往往是因为产生的攻击载荷导致二进制程序的响应超时而出现问题，但通常也可能会导致最终的crash。我们尝试将所有导致的hangs的svg文件导出，并使用原二进制程序手动执行，最终发现hangs文件夹下一个名为 id:000013的输入文件可以导致PhantomJS程序在渲染其内容产生奔溃，如图\ref{fig:segment}所示。
 
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/seg_fault.png}
   \caption{PhantomJS segment fault}
-  \label{fig:logo}
+  \label{fig:segment}
 \end{figure}
 \centerline{}
 
-我们尝试使用gdb去捕获触发异常的函数，发现漏洞触发点位于函数 QVector<QPainterPath::Element>::reallocData(int, int, QFlags<QArrayData::AllocationOption>) 上。通过查阅相关文档后发现，该函数为QTwebkit中负责为Qvector分配内存空间的函数。而当该函数执行失败后, 返回为空指针，但是在随后的Q\_{}ASSERT访问了该空指针的某个成员变量，从而导致空指针引用的漏洞，最终造成程序崩溃。存在漏洞的代码片段如图13所示，具体的漏洞分析过程详情见附录C。
+我们尝试使用gdb去捕获触发异常的函数，发现漏洞触发点位于函数 QVector<QPainterPath::Element>::reallocData(int, int, QFlags<QArrayData::AllocationOption>) 上。通过查阅相关文档后发现，该函数为QTwebkit中负责为Qvector分配内存空间的函数。而当该函数执行失败后, 返回为空指针，但是在随后的Q\_{}ASSERT访问了该空指针的某个成员变量，从而导致空指针引用的漏洞，最终造成程序崩溃。存在漏洞的代码片段如图\ref{fig:vuln}所示，具体的漏洞分析过程详情见附录C。
 
 
 \centerline{}
@@ -936,21 +936,21 @@ hangs不同于crash，hangs往往是因为产生的攻击载荷导致二进制�
   \centering
   \includegraphics[width=0.68\textwidth]{images/vuln_func.png}
   \caption{存在漏洞的代码片段}
-  \label{fig:logo}
+  \label{fig:vuln}
 \end{figure}
 \centerline{}
 
 
 而导致该漏洞产生的直接原因在于svg是矢量型图片，可以设置缩放比例。而在我们使用的svg中。缩放比例被fuzz成1e9\%，这也意味着该图片会被放大1000万倍。QTwebkit中没有对svg的渲染资源进行限制，最终导致渲染过大的svg图片而申请内存失败，返回并引用了空指针。
 
-此外，我们注意到漏洞存在的函数位于QTwebkit中，而并不仅仅是PhantomJS。因此，所有使用了QTwebkit的浏览器都有可能受到该漏洞的影响。此外，我们猜想部分浏览器在开发过程中可能没有考虑到svg的这种特性，也有可能触发类似的漏洞，因此，我们在主流的浏览器上也测试了我们的攻击载荷。最终我们发现，基于webkit开发的safari浏览器也存在类似的问题，虽然无法触发进程crash，但是可以触发OOM （out of memory)，让操作系统奔溃。图14展示了safari在访问包含该svg的网页时的状态，该网页进程一度占用了超过12G的内存（共16G内存）。
+此外，我们注意到漏洞存在的函数位于QTwebkit中，而并不仅仅是PhantomJS。因此，所有使用了QTwebkit的浏览器都有可能受到该漏洞的影响。此外，我们猜想部分浏览器在开发过程中可能没有考虑到svg的这种特性，也有可能触发类似的漏洞，因此，我们在主流的浏览器上也测试了我们的攻击载荷。最终我们发现，基于webkit开发的safari浏览器也存在类似的问题，虽然无法触发进程crash，但是可以触发OOM （out of memory)，让操作系统奔溃。图\ref{fig:oom}展示了safari在访问包含该svg的网页时的状态，该网页进程一度占用了超过12G的内存（共16G内存）。
 
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/safari_oom.jpg}
   \caption{safari OOM 漏洞}
-  \label{fig:logo}
+  \label{fig:oom}
 \end{figure}
 \centerline{}
 
@@ -972,36 +972,36 @@ javascript存在支持跨域的接口，例如cross origin request以及支持�
 
 但是因为浏览器自身的安全限制，一部分被标记为unsafe ports的端口是不允许在浏览器中访问的，因此针对这部分端口是无法进行端口扫描的。基于常用的端口，并过滤掉unsafe ports，我们在我们的攻击载荷中会扫描如下端口：80，443，445，1521，2222，3306，3389，5901，6379，7001，8000，8001，8005，8080，8888，22222。
 
-图15是使用该攻击载荷后，在firefox浏览器中扫描内网某IP生成的效果：
+图\ref{fig:portscan}是使用该攻击载荷后，在firefox浏览器中扫描内网某IP生成的效果。
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/portscan.png}
   \caption{firefox 端口扫描}
-  \label{fig:logo}
+  \label{fig:portscan}
 \end{figure}
 \centerline{}
 
-将该攻击载荷部署到公网环境下，我们捕捉到了来自微软必应的爬虫请求，发现其在爬虫宿主机上开放了80和445端口，如图16所示。
+将该攻击载荷部署到公网环境下，我们捕捉到了来自微软必应的爬虫请求，发现其在爬虫宿主机上开放了80和445端口，如图\ref{fig:bingscan}所示。
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/bing_crawler_portscan.png}
   \caption{bing爬虫端口扫描情况}
-  \label{fig:logo}
+  \label{fig:bingscan}
 \end{figure}
 \centerline{}
 
 
 \subsection{任意文件读取}
-而在部分配置不当的恶意爬虫中，我们甚至可以读取任意的系统文件。以PhantomJS为例，某些以PhantomJS作为无头浏览器的爬虫使用了这样的架构：一些静态的爬虫负责拉取网页上的数据并将其存储到本地文件系统中，而对于这些网页数据的渲染则是从本地文件中读取后再进行的，通过这样异步的处理可以提升效率。在这种情境下，渲染相关js的时候，相应的origin也将对应着本地的文件系统，因此在不违反跨域原则的前提条件下，可以直接读取本地的文件。具体的攻击载荷在file-read.html，详情参考附录B.3。攻击载荷将读取本地的/etc/passwd文件并将其发送到远程，攻击的效果如图17所示。
+而在部分配置不当的恶意爬虫中，我们甚至可以读取任意的系统文件。以PhantomJS为例，某些以PhantomJS作为无头浏览器的爬虫使用了这样的架构：一些静态的爬虫负责拉取网页上的数据并将其存储到本地文件系统中，而对于这些网页数据的渲染则是从本地文件中读取后再进行的，通过这样异步的处理可以提升效率。在这种情境下，渲染相关js的时候，相应的origin也将对应着本地的文件系统，因此在不违反跨域原则的前提条件下，可以直接读取本地的文件。具体的攻击载荷在file-read.html，详情参考附录B.3。攻击载荷将读取本地的/etc/passwd文件并将其发送到远程，攻击的效果如图\ref{fig:fileread}所示。
 
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/file_read.png}
   \caption{任意文件读取攻击效果}
-  \label{fig:logo}
+  \label{fig:fileread}
 \end{figure}
 \centerline{}
 
@@ -1024,14 +1024,14 @@ javascript存在支持跨域的接口，例如cross origin request以及支持�
 \item[(4)] handler：恶意爬虫检测与对抗系统的核心。包含请求数据库，规则数据库与相应处理进程。负责检测恶意爬虫并根据相关信息控制proxy返回的攻击载荷。
 \end{itemize}
 
-四个模块的协作关系如图18所示，所有模块的生命周期使用docker-composer统一管理。
+四个模块的协作关系如图\ref{fig:architecture}所示，所有模块的生命周期使用docker-composer统一管理。
 
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/architecture.png}
   \caption{系统架构}
-  \label{fig:logo}
+  \label{fig:architecture}
 \end{figure}
 \centerline{}
 
@@ -1256,14 +1256,14 @@ Yes     &     1000/10  &     144.40s &  16296kB   &  1444.04ms    &  96.68kB/s\\
 
 
 \subsection{爬虫对抗效果}
-我们通过手动降低恶意爬虫识别的阈值的方法，将爬虫所在的session以及IP列入黑名单，并启用所有的攻击载荷。一段时间后，部分爬虫因为执行了资源消耗型的攻击载荷，向服务器发送的请求速度显著降低。部分爬虫因为执行了信息窃取型的攻击载荷，会将自身内网相关的敏感信息泄露到到了指定的远程服务器上。甚至部分使用PhantomJS作为webdriver的爬虫，因为触发了phantomJS的内存破坏漏洞的攻击载荷，爬虫进程直接奔溃退出。
+我们通过手动降低恶意爬虫识别的阈值的方法，将爬虫所在的session以及IP列入黑名单，并启用所有的攻击载荷。一段时间后，部分爬虫因为执行了资源消耗型的攻击载荷，向服务器发送的请求速度显著降低。部分爬虫因为执行了信息窃取型的攻击载荷，会将自身内网相关的敏感信息泄露到到了指定的远程服务器上。甚至部分使用PhantomJS作为webdriver的爬虫，因为触发了phantomJS的内存破坏漏洞的攻击载荷，爬虫进程直接奔溃退出，如图\ref{fig:res}所示。
 
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/crash_crawler.png}
   \caption{爬虫对抗效果图}
-  \label{fig:logo}
+  \label{fig:res}
 \end{figure}
 \centerline{}
 
@@ -1501,21 +1501,21 @@ afl-fuzz -i input/ -o output/ -m none -S fuzzer03   -- phantomjs_afl /root/fuzz/
 afl-fuzz -i input/ -o output/ -m none -S fuzzer04   -- phantomjs_afl /root/fuzz/test/test3.js
 \end{lstlisting}
 
-通过几天的fuzz，我们获取到了大量的hangs（超时错误）:
+通过几天的fuzz，我们获取到了大量的hangs（超时错误），如图\ref{fig:hangs}所示。
 
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/afl_hangs.png}
   \caption{AFL hangs}
-  \label{fig:logo}
+  \label{fig:hangs}
 \end{figure}
 \centerline{}
 
 
 \subsection{PhantomJS漏洞分析}
 
-在确定能够触发漏洞的样本后，我们首先使用gdb尝试定位到具体的漏洞触发函数：
+在确定能够触发漏洞的样本后，我们首先使用gdb尝试定位到具体的漏洞触发函数。
 
 \lstset{language=JavaScript}
 \begin{lstlisting}
@@ -1531,27 +1531,27 @@ afl-fuzz -i input/ -o output/ -m none -S fuzzer04   -- phantomjs_afl /root/fuzz/
 \end{figure}
 \centerline{}
  
- 不难看出我们的漏洞存在QVector<QPainterPath::Element>::reallocData函数中，该函数对应文件位置为：phantomjs/src/qt/qtbase/src/corelib/tools/qvector.h。 我们在gdb中使用反汇编功能可以查看到触发漏洞具体的汇编代码。
+ 不难看出我们的漏洞存在QVector<QPainterPath::Element>::reallocData函数中，该函数对应文件位置为：phantomjs/src/qt/qtbase/src/corelib/tools/qvector.h。 我们在gdb中使用反汇编功能可以查看到触发漏洞具体的汇编代码，如图\ref{fig:gdb}所示。
  
  \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/gdb_disassemble.png}
   \caption{GDB 反汇编代码}
-  \label{fig:logo}
+  \label{fig:gdb}
 \end{figure}
 \centerline{}
  
  由上图可知，在调用了函数QArrayData::allocate函数（使用c++filt工具还原其函数名）之后，函数将allocate分配的地址空间作为返回值存储于rax寄存器，并在之后通过对该地址中对应成员变量的修改触发漏洞。在查看当前的寄存器值后，可以发现，QArrayData::allocate返回的地址空间指针为0x0，即空指针，因此之后对该指针指向对象的成员变量操作时将会触发空指针引用的错误。
  
- 为了进一步探究allocate函数返回空指针的根本原因，我们修改源代码加入对allocate函数传递参数的监控。
+ 为了进一步探究allocate函数返回空指针的根本原因，我们修改源代码加入对allocate函数传递参数的监控，如图\ref{fig:allocate}所示。
  
   \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/gdb_parameter.png}
   \caption{allocate函数参数监控}
-  \label{fig:logo}
+  \label{fig:allocate}
 \end{figure}
 \centerline{}
 
