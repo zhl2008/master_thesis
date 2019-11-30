@@ -173,7 +173,7 @@
 \Abstract{%
   随着各类基于大数据和AI的应用兴起，快速廉价地获取大量有效数据的能力，成为互联网时代企业和个人竞争力的体现。因此，网络爬虫在数据收集收集方面的重要性逐渐凸显出来。但是，恶意爬虫同样给互联网用户和互联网服务提供者带来了巨大的困扰，这些爬虫或者多线程、高并发的请求耗尽服务器的带宽和计算资源，或者爬取个人敏感信息、高价值的商业数据用于不法用途。
 
-  构建一个成熟有效的反爬虫系统，成为一个亟待解决的问题。但遗憾的是，传统的反爬虫机制过于保守和被动，在漏检率和误检率居高不下的情况下，且往往只能通过单一的反制手段来限制爬虫（如IP封锁，访问频率限制，虚假数据返回等），在反爬虫的对抗中收效甚微。为此，本文提出了一种新型的反爬虫的机制，融合了爬虫检测技术，爬虫行为分析和溯源技术，并通过动态符号执行、模糊测试以及污点分析等二进制漏洞挖掘方法，挖掘爬虫使用的框架、处理脚本以及无头浏览器驱动程序驱动程序的漏洞，并通过返回恶意的攻击载荷，对运行恶意爬虫的主机进行反向攻击，最终诱使恶意爬虫进程奔溃，甚至有可能获取到恶意爬虫主机上的敏感数据以及系统权限。
+  构建一个成熟有效的反爬虫系统，成为一个亟待解决的问题。但遗憾的是，传统的反爬虫机制过于保守和被动，在漏检率和误检率居高不下的情况下，且往往只能通过单一的反制手段来限制爬虫（如IP封锁，访问频率限制，虚假数据返回等），在反爬虫的对抗中收效甚微。为此，本文提出了一种新型的爬虫检测和对抗机制，该机制融合了多种粒度下的爬虫检测技术，爬虫行为分析和溯源技术，通过动态符号执行、模糊测试以及污点分析等二进制漏洞挖掘方法，挖掘爬虫使用的框架、处理脚本以及无头浏览器驱动程序驱动程序的漏洞。并通过返回恶意的攻击载荷，对运行恶意爬虫的主机进行反向攻击，最终诱使恶意爬虫进程奔溃，甚至有可能获取到恶意爬虫主机上的敏感数据以及系统权限。
 
   此外，本文将遵循上述的设计思路，实现该反爬虫系统的原型系统Crawler-Net(捕虫网），并将Crawler-Net部署在模拟的业务系统上，使用具有不同请求策略的爬虫流量混合正常的用户访问进行测试，从系统性能损失、准确率、召回率等多方面的指标来评估该反爬虫系统的性能。
   }{%
@@ -255,7 +255,7 @@
  
   Shengye Wan在他的文章中综合了现有的反爬虫技术，提出一个名为PathMarker的模型\upcite{wan2016protecting}。PathMarker会将URL地址信息以及当前访问的用户信息加密，并替换掉原有的URL地址。由此标注每个请求所对应的session，并利用之前的研究中使用的session特征，来区分爬虫和人类。这种方案可以在很长的时间窗口内持续地追踪爬虫在某个网站的爬行轨迹，可以用于分析爬虫的爬行目标和爬行策略，并且在某种程度上可以追踪使用分布式IP池的爬虫群。 PathMarker在session分类良好的情况下能够产生较好的爬虫检测效果，但是其缺点也很明显，需要修改所有返回请求中的所有链接地址，在真实的生产环境下难以提供灵活的部署方案。此外，一旦访问的爬虫使用对抗性的爬虫策略，PathMarker的session分类效果将不再准确，从而影响最终的爬虫识别效果。
 
-  总体而言，现有的反爬虫技术主要注重于爬虫识别技术的发展，对于发现可疑爬虫后的阻断方法，往往是单一的阻断或者使用captcha机制进行验证，无法对恶意爬虫的作者起到威慑的作用。在爬虫识别的主流技术中，单粒度上识别的检测技术，一旦遇到采用字段变异的爬虫，便无法发挥应有的作用。而在session粒度上识别的检测技术，在实时性检测上，往往都有较大的性能消耗。除此之外，大部分的爬虫识别模型都没有考虑到爬虫可能采用的反反爬虫手段，对于一些有着特殊对抗策略的爬虫，其识别效果将大打折扣。
+  总体而言，现有的反爬虫技术主要注重于爬虫识别技术的发展，对于发现可疑爬虫后的阻断方法，往往是单一的阻断或者使用captcha机制进行验证，无法对恶意爬虫的作者起到威慑的作用。在爬虫识别的主流技术中，单粒度上识别的检测技术，一旦遇到采用字段变异的爬虫，便无法发挥应有的作用。而在session粒度上识别的检测技术，在实时性检测上，往往都有较大的性能消耗。除此之外，大部分的爬虫识别模型都没有考虑到爬虫可能采用的反反爬虫手段，对于一些有着特殊对抗策略的爬虫，其识别效果将大打折扣。如表\ref{tab:anti-crawler-now}所示，是目前主流的反爬虫研究效果的比较。
 
 
 
@@ -268,8 +268,8 @@
   %  {\bfseries 论文题目} & \multicolumn{1}{c} {\bfseries 实时性} & \multicolumn{1}{c} {\bfseries 静态信息利用}  &  \multicolumn{1}{c} {\bfseries 动态信息利用}  &  \multicolumn{1}{c} {\bfseries 检测粒度} &  \multicolumn{1}{c} {\bfseries 性能损耗} &  \multicolumn{1}{c} {\bfseries 爬虫对抗与爬虫追踪} \\
 \centerline{}
 \begin{table}[h]
-  \caption{已有研究成果比较}
-  \label{tab:papercomponents}
+  \caption{已有研究效果比较}
+  \label{tab:anti-crawler-now}
   \centering
 \begin{tabular}{|p{5cm}<{\centering}|p{1cm}<{\centering}|p{3cm}<{\centering}|p{1cm}<{\centering}|p{2cm}<{\centering}|p{1cm}<{\centering}|p{1cm}<{\centering}|}
     \hline
@@ -403,11 +403,15 @@
 \end{figure}
 \centerline{}
 
+\section{小结}
+本章节的内容主要通过对于目前主流爬虫种类，爬行策略以及自动化方案的介绍，来启发在我们对于爬虫识别和爬虫对抗部分的研究，只有知己知彼，我们才能制定出有实际应用价值的爬虫识别和爬虫对抗机制。此外，本部分的研究工作，也将在系统的实现过程中转化为多策略爬虫工具的理论依据，用于保证多策略爬虫工具的有效性、真实性和完备性。
+
+
 
 \chapter{恶意爬虫检测技术研究}
 
 \section{爬虫样本与训练数据}
-为了检验和评估不同的方案下，爬虫识别算法的检测率和效率，我们使用了三个不同的数据集进行评估。前两个数据集分别为：
+为了检验和评估不同的方案下，爬虫识别算法的检测率和效率，我们使用了三个不同的数据集对爬虫识别算法进行评估。前两个数据集分别为：
 \begin{itemize}
 \item 清华大学某网站访问数据集 （数据集a）
 \item 360天眼恶意攻击流量数据集 （数据集b）
@@ -487,12 +491,12 @@
 Host，Connection，User-Agent，Accept，Accept-Language，Accept-Encoding
 没有使用这些字段的请求均会被标记为爬虫。
 
-我们在数据集a上使用单粒度模式检测规则的检测效果如表2所示。
+我们在数据集a上使用单粒度模式检测规则的检测效果如表\ref{tab:single-effect}所示。
 
 \centerline{}
 \begin{table}[h]
   \caption{单粒度模式检测规则效果}
-  \label{tab:papercomponents}
+  \label{tab:single-effect}
   \centering
 \begin{tabular}{|p{2cm}<{\centering}|p{2cm}<{\centering}|p{3cm}<{\centering}|p{2cm}<{\centering}|p{3cm}<{\centering}|p{2cm}<{\centering}|}
     \hline
@@ -528,12 +532,12 @@ score = \frac {W_{ua} * M_{ua} + W_{url} * M_{url} + W_{other} * M_{other} + W_{
 \end{figure}
 \centerline{}
 
-静态session分类也是在已有的爬虫检测文献中最常使用的方法，但是该方法也存在致命的局限性，在面对使用对抗策略的爬虫面前，该session分类方法无法正常地进行分类，表3是静态session方法在三种数据集上的分类效果。
+静态session分类也是在已有的爬虫检测文献中最常使用的方法，但是该方法也存在致命的局限性，在面对使用对抗策略的爬虫面前，该session分类方法无法正常地进行分类，表\ref{tab:static-session}是静态session方法在三种数据集上的分类效果。
 
 \centerline{}
 \begin{table}[h]
   \caption{静态session分类效果比较}
-  \label{tab:papercomponents}
+  \label{tab:static-session}
   \centering
 \begin{tabular}{|p{2cm}<{\centering}|p{5cm}<{\centering}|p{2cm}<{\centering}|p{2cm}<{\centering}|p{2cm}<{\centering}|}
     \hline
@@ -608,12 +612,12 @@ ECKERSLEY根据浏览器的环境，通过收集一些网站能够获取的浏�
 \item canvas指纹
  \end{itemize}
  
- 以下是我们在不同操作系统，不同版本的不同浏览器上根据以上特征使用hash算法生成的128 bit指纹。
+ 如表\ref{tab:js-fp}所示，是我们在不同操作系统，不同版本的不同浏览器上根据以上特征使用hash算法生成的128 bit指纹。
  
 \centerline{}
 \begin{table}[h]
   \caption{不同浏览器指纹比较}
-  \label{tab:papercomponents}
+  \label{tab:js-fp}
   \centering
 \begin{tabular}{|p{3cm}<{\centering}||p{3cm}<{\centering}|p{3cm}<{\centering}|p{6cm}<{\centering}|}
     \hline
@@ -675,18 +679,18 @@ score = \frac {W_{ua} * M_{ua} + W_{url} * M_{url} + W_{other} * M_{other} + W_{
 结合已有论文中的方法以及我们的具体使用场景，在session检测规则上，我们主要考虑如下特征：
 
 \begin{itemize}
-\item[(1)] 4xx/5xx 返回状态码的比例：HTTP返回的状态码指示了当前HTTP请求处理结果的状态。最常见的正常返回是200，对应的返回状态是“OK”，在提交登录凭证的时候，也有可能产生一些重定向的返回状态码，如301和302。而出现4xx以及5xx的状态码时，往往是服务器在处理相关请求时出现了错误，或者用户发送的HTTP请求并不是满足HTTP协议的合法请求。在普通的用户使用浏览器访问的情况下，很少会出现这样的状态。而爬虫因其扩张性以及一定的侵略性，则经常会触发此类的错误，尤其是因为访问服务器上不存在的资源而触发”404 not found“的错误。
+\item[(1)] 4xx/5xx 返回状态码的比例：HTTP返回的状态码指示了当前HTTP请求处理结果的状态。最常见的正常返回是200，对应的返回状态是“OK”，在提交登录凭证的时候，也有可能产生一些重定向的返回状态码，如301和302。而出现4xx以及5xx的状态码时，往往是服务器在处理相关请求时出现了错误，或者用户发送的HTTP请求并不是满足HTTP协议的合法请求。在普通的用户使用浏览器访问的情况下，很少会出现这样的状态。而爬虫因其扩张性以及一定的侵略性，则经常会触发此类的错误，尤其是因为访问服务器上不存在的资源而触发“404 not found”的错误。
 \item[(2)] 某时间段内（如1min）内的最大请求次数：高频率地请求网站的相关资源，从而导致web服务器的带宽资源以及计算资源被大量消耗，是恶意爬虫对网站的主要危害之一，而普通用户的访问往往是达不到很高的请求速率的。因此某段时间内的最大请求频次可以作为一个关键指标，用来衡量一个session是否来自于爬虫。
 \item[(3)] 请求时间间隔标准差：爬虫的请求频率和次数往往由程序事先定义好，因此从session的角度来看，爬虫的请求时间间隔通常会有很强的规律性，而这些时间间隔的标准差，正是能够反应该规律性显著程度的重要指标。
 \item[(4)] 请求URL资源不同类型比例：爬虫访问与人类访问相比，更加注重数据的收集和效率，而人类的访问更注重数据的可读性。基于这种假设，我们不难得出结论，爬虫对于web page资源更加偏爱，但是会忽略一部分对于爬虫而言没有意义的样式表文件，字体文件以及javascript文件的加载。基于这种特征，根据session中的URL资源比例分布，能够判定出一部分的爬虫。
 \end{itemize}
 
-如下，是从数据集a中抽取了具有代表性的爬虫session以及人类session的特征比较：
+如表所示\ref{tab:session-features}，是从数据集a中抽取了具有代表性的爬虫session以及人类session的特征比较：
 
 \centerline{}
 \begin{table}[h]
   \caption{典型session特征比较}
-  \label{tab:papercomponents}
+  \label{tab:session-features}
   \centering
 \begin{tabular}{|p{3cm}<{\centering}||p{3cm}<{\centering}|p{3cm}<{\centering}|p{3cm}<{\centering}|}
     \hline
@@ -743,12 +747,12 @@ page资源比例 & 7.8\% & 54\% & 98.1\% \\
 \item[(2)] alert窗口交互时间： 我们在该网页中内置的javascript会通过alert函数触发弹窗。正常情况下，人类关闭该弹窗的时间都在1000ms以上，而爬虫使用的无头浏览器的窗口交互时间普遍在200ms以下，甚至像PhantomJS这类的无头浏览器，直接忽略掉了alert的弹窗。
 \item[(3)] 窗口大小：一部分无头浏览器（如PhantomJS）为了节省渲染页面时使用的计算资源，直接将windows大小设置为0 x 0，这对于我们正常的用户浏览器而言是不可能存在的情况。
 \item[(4)] 鼠标键盘事件：在关闭alert窗口的时候，一般会触发一些键盘和鼠标的操作。因此，我们针对document对象的鼠标和键盘事件进行全方位的监听，并且进行计数。可以看到绝大部分的普通浏览器都会存在鼠标和键盘事件，而无头浏览器中除了高版本的chromium会触发鼠标事件之外，其他的浏览器均不会有这样的特性。
-\item[(5)] 特殊函数: 对于部分特殊的无头浏览器，他们使用的javascript执行器因为其本身的特性，能够支持一些特殊的函数，那么这些特殊函数的存在与否也将被作为对具体爬虫种类的检测的关键特征\upcite{jueckstock2019visiblev8}。在我们的研究中，我们尝试检测了以下的函数：
+\item[(5)] 特殊函数: 对于部分特殊的无头浏览器，他们使用的javascript执行器因为其本身的特性，能够支持一些特殊的函数，那么这些特殊函数的存在与否也将被作为对具体爬虫种类的检测的关键特征\upcite{jueckstock2019visiblev8}。在我们的研究中，我们尝试检测了如表\ref{tab:special-function}所示的函数。
 
 \centerline{}
 \begin{table}[h]
   \caption{js解释器对应的特殊函数}
-  \label{tab:papercomponents}
+  \label{tab:special-function}
   \centering
 \begin{tabular}{|p{3cm}<{\centering}|p{8cm}<{\centering}|}
     \hline
@@ -788,7 +792,7 @@ selenium & window.webdriver \\
 \subsection{taint link检验技术}
 爬虫和人类在访问同一个页面时，对页面的解析过程存在明显差异。人类对于页面的解读是基于最终的渲染效果的，但是爬虫依赖的通常是基于正则表达式的解析器，但这些解析器所得到的解析结果可能并不会在人类可见的页面中进行渲染。在此，人类和爬虫的这种差异为我们的检测爬虫提供了一种新的途径。
 
-将taint link技术部署在真实环境中时，通过会先在正常的页面中插入污点页面(taint page)，污点页面中存在污点链接(taint link)，该链接在html渲染时不会显示出来，但可能会被爬虫的link parser所识别，并产生相应的访问请求，我们把存在该类请求的session标记为爬虫。该技术不需要爬虫存在的解析javascript的能力，具有更强的适应性，大致实现流程如图\ref{fig:taint}所示。
+将taint link技术部署在真实环境中时，通过会先在正常的页面中插入污点页面(taint page)，污点页面中存在污点链接(taint link)，该链接在html渲染时不会显示出来，但可能会被爬虫的link parser所识别，并产生相应的访问请求，我们把存在该类请求的session标记为爬虫。该技术不需要爬虫存在的解析javascript的能力，具有更强的普适性，大致实现流程如图\ref{fig:taint}所示。
 
 
 \begin{figure}[!h]
@@ -813,7 +817,7 @@ selenium & window.webdriver \\
 
 
 \section{小结}
-恶意爬虫检测技术是本研究的关键技术，只有准确地识别出恶意爬虫及其相信息，我们的恶意爬虫对抗技术才能实现精准的打击。传统的爬虫检测技术主要集中于单粒度检测，在session粒度上的检测技术因为实时性问题，以及session分类不准确的重大缺陷，无法针对恶意爬虫实现精确地识别。本章节提出的爬虫检测技术，充分利用了session的静态信息与动态信息，实现对session的准确分类，并分别从单粒度和session粒度进行爬虫检测，以及利用特殊的javascript特性以及taint link技术，进一步准确地定位爬虫种类以及爬虫使用webdriver的类型，从而指导爬虫对抗技术的成攻击载荷的生成。最后还使用一些启发式的算法，人工设定一些了阈值，用于区分普通爬虫和恶意爬虫。
+恶意爬虫检测技术是本研究的关键技术，只有准确地识别出恶意爬虫及其相信息，我们的恶意爬虫对抗技术才能实现精准的打击。传统的爬虫检测技术主要集中于单粒度检测，在session粒度上的检测技术因为实时性问题，以及session分类不准确的重大缺陷，无法针对恶意爬虫实现精确地识别。本章节提出的爬虫检测技术，充分利用了session的静态信息与动态信息，实现对session的准确分类，并分别从单粒度和session粒度进行爬虫检测，以及利用特殊的javascript特性以及taint link技术，进一步准确地定位爬虫种类以及爬虫使用webdriver的类型，从而指导爬虫对抗技术的成攻击载荷的生成。最后还使用一些启发式的算法，人工设定一些阈值，用于区分普通爬虫和恶意爬虫，这些阈值在不同的web服务器环境下会有不同的取值。
 
 
 \chapter{恶意爬虫对抗技术研究}
@@ -831,6 +835,8 @@ selenium & window.webdriver \\
 
 \subsection{使用的漏洞挖掘技术（Techniques)}
 
+
+
 \subsubsection{符号执行}
 符号执行是二进制动态分析中一种至关重要的技术。它的关键思想是使用符号值而不是固定值，用作程序或者函数的输入。并将程序中的变量表示成与符号输入相关的符号表达式。最终，程序输出的计算结果以符号输入的函数表示\upcite{cadar2013symbolic}。
 在软件测试中，符号执行常用于生成能够达到每一个执行路径的测试输入集。简而言之，就是一个程序执行的路径通常是true和false条件的序列，这些条件是在分支语句处产生的。在序列的$i^{th}$位置如果值是true，那么意味着$i^{th}$条件语句走的是then这个分支；反之如果是false就意味着程序执行走的是else分支。一个程序中的所有路径可以构成一株执行树。
@@ -838,9 +844,9 @@ selenium & window.webdriver \\
 
 因此，在实际应用中，通常需要限制符号执行的超时时间或者路径的数量。传统的符号执行还有一个致命的缺陷，就是当符号路径中存在不能被约束求解器高效求解的公式时，符号执行的输入就难以被计算出来。
 
-\subsubsection{污点分析}
+\subsubsection{动态污点分析}
 
-动态污点分析的目的是在源和目的之间追踪信息流。程序中任何从污点数据计算得出的变量都被认为已污染（tainted），其他变量被认为未污染（untainted）\upcite{newsome2005dynamic}。污染策略P决定污点在程序执行的过程中如何流动，什么样的操作会产生新的污点，以及针对已污染的数据会有什么样的检查。尽管污染策略会随着被分析的程序的不同而改变，但是基本的概念是一致的\upcite{schwartz2010all}。在污点分析的过程往往会有两种错误，一是污点分析可能会将一个不是从污点数据导出的数据标记成已污染，这样现象被称为过污染（overtained）；此外，动态污点分析可能在分析过程中损失一些信息流，被称之为欠污染（undertainting）。如果一个动态污点分析，既不是欠污染，又不是过污染，那么它可以被认为是准确的。
+动态污点分析的目的是在源和目的之间追踪信息流，它在程序运行过程中，通过实时监控程序的污点数据在系统程序中的传播来检测数据能否从污点源传播到污点汇聚点。程序中任何从污点数据计算得出的变量都被认为已污染（tainted），其他变量被认为未污染（untainted）\upcite{newsome2005dynamic}。污染策略P决定污点在程序执行的过程中如何流动，什么样的操作会产生新的污点，以及针对已污染的数据会有什么样的检查。尽管污染策略会随着被分析的程序的不同而改变，但是基本的概念是一致的\upcite{schwartz2010all}。在污点分析的过程往往会有两种错误，一是污点分析可能会将一个不是从污点数据导出的数据标记成已污染，这样现象被称为过污染（overtained）；此外，动态污点分析可能在分析过程中损失一些信息流，被称之为欠污染（undertainting）。如果一个动态污点分析，既不是欠污染，又不是过污染，那么它可以被认为是准确的。
 
 一个完整的动态污点策略包含三个属性：如何引入污点，如何传播污点以及如何检查污点。
 \begin{itemize}
@@ -867,6 +873,8 @@ selenium & window.webdriver \\
 
 
 
+
+
 \subsection{使用的漏洞挖掘工具 （Tools)}
 我们使用了一些比较成熟的工具来进行漏洞挖掘，这些工具在底层使用了一种或多种上述的漏洞挖掘技术，而且还有相关的学术论文做理论支持。充分利用这些工具的优势，可以大大降低我们的漏洞挖掘的成本。
 
@@ -875,7 +883,9 @@ selenium & window.webdriver \\
 
 \item[(2)] AFL：AFL（American Fuzzy Loop）是一款采用了极度简单但也极度健壮的覆盖率引导的fuzz工具。它采用了一种改良的edge覆盖率导向的算法来找到使局部的控制流变异的输入。整个工具的运行流程可以简化为：（1）加载用户提供的初始测试用例到队列； （2）从队列中取出一个输入；（3）尝试将输入最小化为不改变当前程序控制流的输入；（4）不断地使用一些变异策略来改变输入；（4）如果输入的改变导致了新的转态转移，则将该变异输入加到队列中去。
 
-\item[(3)] Driller：Driller是对driller这篇论文的一个具体实现\upcite{stephens2016driller}。它的实现是基于AFL的，并且使用angr作为符号执行的追踪器\upcite{shoshitaishvili2016sok}。当这些由AFL生成的输入无法产生新的执行路径的时候，Driller会有选择地追踪这部分输入。Driller还会取出所有存在AFL队列中但未被追踪的执行路径，并寻找一些AFL无法找到相应输入的基本块之间的状态转移。Driller会使用angr来合成这些输入并将其放入AFL队列。之后，AFL会继续运行并将变异这些输入来发现更多可能的执行路径。
+\item[(3)] Driller：Driller是对driller这篇论文的一个具体实现\upcite{stephens2016driller}，它首先将符号执行技术与模糊测试技术结合在一起。它的实现是基于AFL的，并且使用angr作为符号执行的追踪器\upcite{shoshitaishvili2016sok}。当这些由AFL生成的输入无法产生新的执行路径的时候，Driller会有选择地追踪这部分输入。Driller还会取出所有存在AFL队列中但未被追踪的执行路径，并寻找一些AFL无法找到相应输入的基本块之间的状态转移。Driller会使用angr来合成这些输入并将其放入AFL队列。之后，AFL会继续运行并将变异这些输入来发现更多可能的执行路径。
+
+\item[(4)] VUzzer：VUzzer工具是基于已有的动态污点分析工具DataTracker开发而来的模糊测试工具，它主要依赖于libDFT pintool\upcite{rawat2017vuzzer}。VUzzer具有优秀的程序感知功能，在运行时不需要给VUzzer提供二进制程序的先验知识以及输入的格式要求。而为了最大化fuzz的代码覆盖率以及测试深度，VUzzer会在静态特征和动态分析的基础上，利用控制流和数据流的特征来推测程序基础的属性。这一特性也意味着VUzzer与普通的fuzzer相比，能够更快地找到有意义的输入。
 
 \end{itemize}
 
@@ -1004,6 +1014,8 @@ javascript存在支持跨域的接口，例如cross origin request以及支持�
   \label{fig:fileread}
 \end{figure}
 \centerline{}
+
+截止到本文提交前，该攻击载荷还成功攻击了来自于大型搜索引擎产商的爬虫。具体攻击细节会在其修复相关漏洞后公布。
 
 \section{小结}
 本章主要介绍了对抗恶意爬虫的三种攻击载荷。资源耗尽型攻击载荷可以针对大部分使用无头浏览器的爬虫，但是因为其攻击原理和攻击载荷都比较简单，容易被恶意爬虫作者发现，并指定相关的绕过策略，无法做为长久使用的攻击载荷。信息窃取类攻击载荷的隐蔽性较强，能够在爬虫渲染页面过程中隐秘地泄露出信息，但攻击载荷的利用条件比较严苛，需要相应的环境的支持，以及特殊的配置。在真实场景下，能够触发的概率不高。对于本章重点介绍的通过漏洞挖掘技术发现的内存破坏型攻击载荷，虽然其漏洞挖掘过程复杂，漏洞挖掘成本搞。但是一旦发现且复现相关漏洞，并构造出相应的攻击载荷，将会给恶意爬虫带来巨大的降维打击。调试难度高，漏洞函数调用层次深，这些因素都对恶意爬虫作者提出了巨大的挑战，使得内存破坏型漏洞成为恶意爬虫对抗中的”大杀器“。以PhantomJS的内存破坏漏洞为例，该漏洞不需要PhantomJS去执行javascript，只要存在对页面的渲染，就可以触发该攻击载荷，最终通过空指针引用直接导致爬虫进程奔溃退出。
@@ -1198,12 +1210,12 @@ $all\_{}session\_{}group  \leftarrow static\_{}session\_{}group +  dynamic\_{}se
 \section{恶意爬虫检测与对抗系统的评价}
 
 \subsection{系统性能损失}
-我们使用压力测试工具apache benchmark来评估部署了恶意爬虫检测与对抗系统后的性能损失。在我们的评估中，我们使用了10个线程，向原始的web服务器和部署了恶意爬虫检测与对抗系统的web服务器分别发送了1000个请求，如下是相关的统计信息。
+我们使用压力测试工具apache benchmark来评估部署了恶意爬虫检测与对抗系统后的性能损失。在我们的评估中，我们使用了10个线程，向原始的web服务器和部署了恶意爬虫检测与对抗系统的web服务器分别发送了1000个请求，表\ref{tab:pressure}是相关的统计信息。
 
 \centerline{}
 \begin{table}[h]
   \caption{系统压力测试}
-  \label{tab:papercomponents}
+  \label{tab:pressure}
   \centering
 \begin{tabular}{|p{2cm}<{\centering}||p{2cm}<{\centering}|p{2cm}<{\centering}|p{2cm}<{\centering}|p{2cm}<{\centering}|p{2cm}<{\centering}|}
     \hline
@@ -1223,12 +1235,12 @@ Yes     &     1000/10  &     144.40s &  16296kB   &  1444.04ms    &  96.68kB/s\\
 
 
 \subsection{session分类准确率}
-使用多策略爬虫工具分批生成10000个请求，共计495个session。因为使用的webdriver有限，无法保证浏览器指纹的唯一性，因此，每次使用10个session，分批进行session分类，session分类的准确率按request粒度分别进行计算，最终取加权平均值。最终session分类效果如下所示：
+使用多策略爬虫工具分批生成10000个请求，共计495个session。因为使用的webdriver有限，无法保证浏览器指纹的唯一性，因此，每次使用10个session，分批进行session分类，session分类的准确率按request粒度分别进行计算，最终取加权平均值。最终session分类效果如表\ref{session-res}所示。
 
 \centerline{}
 \begin{table}[h]
   \caption{session分类效果}
-  \label{tab:papercomponents}
+  \label{tab:session-res}
   \centering
 \begin{tabular}{|p{2cm}<{\centering}||p{2cm}<{\centering}|p{2cm}<{\centering}|p{2cm}<{\centering}|p{2cm}<{\centering}|p{2cm}<{\centering}|p{2cm}<{\centering}|}
     \hline
@@ -1461,6 +1473,25 @@ xhr.send(null);
 \section{漏洞挖掘与分析}
 
 \subsection{漏洞挖掘AFL示例}
+如下表\ref{tab:afl-env}所示，是AFL工具使用的漏洞挖掘环境。
+
+\centerline{}
+\begin{table}[h]
+  \caption{AFL漏洞挖掘环境概况}
+  \label{tab:afl-env}
+  \centering
+\begin{tabular}{|p{3cm}<{\centering}|p{3cm}<{\centering}|p{3cm}<{\centering}|p{1cm}<{\centering}|p{3cm}<{\centering}|}
+    \hline
+   \textbf{操作系统版本} & \textbf{内核版本} & \textbf{处理器} & \textbf{内存} &  \textbf{AFL版本}   \\
+    \hline
+ubuntu 16.04 x64 &  4.4.0-151-generic & 4 cores Intel(R) Xeon(R) Platinum 8269CY CPU @ 2.50GHz & 8G   & pythia (afl 2.5.1b) \\
+\hline
+    \end{tabular}
+\end{table}
+\centerline{}
+
+
+
 首先使用AFL提供的afl-gcc以及afl-g++来编译PhantomJS，二次编译的目的是为了在程序中插桩，通过插桩来获取程序运行时的执行路径，以此来计算fuzz的覆盖率指标。
 
 \lstset{language=JavaScript}
