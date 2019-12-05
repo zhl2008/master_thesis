@@ -110,7 +110,7 @@
 \RequirePackage{longtable}    % 长表格
 \RequirePackage{multirow}     % 多行表格
 \RequirePackage{caption}      % 标题设置
-\RequirePackage{algorithm2e}  % 算法环境
+\usepackage[ruled,vlined]{algorithm2e}  % 算法环境
 \RequirePackage{listings}     % 代码环境
 \RequirePackage{amsmath}      % 数学
 \RequirePackage{amsthm}       % 定理
