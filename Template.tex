@@ -826,6 +826,8 @@ selenium & window.webdriver \\
 
 在我们的对抗技术，我们采用了两种比较经典的资源耗尽型攻击技术作为示范。首先是billion laugh，其主要的利用原理是浏览器在渲染xml的时候，尝试对xml中引用的实体进行解析，而这些实体又引用了大量的其他实体，最终形成指数级别的引用，占用执行者大量的计算和存储资源。其次是js fork bomb，该攻击载荷利用的是能够执行javascript的爬虫，递归地去执行某个函数，并且每次执行的时候，因为javascript的异步特性，去生成新的线程。最终导致系统因为fork了过多的线程，而无法运行任何新的程序。 billion laugh和js fork bomb的具体攻击载荷见附录B1。
 
+资源耗尽型对抗技术的攻击载荷，具有无差别攻击的杀伤力，任何的无头浏览器和普通浏览器都有可能在执行相关的攻击载荷后奔溃。因此，在使用该类型的载荷时，我们需要保证我们攻击的目标不是普通用户的浏览器。一般而言，该攻击载荷主要用于攻击消耗了大量服务器资源的失控爬虫，通过耗尽爬虫计算资源而限制其对web服务器的访问。
+
 
 \section{内存破坏型对抗技术}
 内存破坏型对抗技术主要是利用特殊的攻击载荷，破坏爬虫进程在内存层次上的内存布局，进一步触发可能的空指针引用，栈溢出，堆溢出以及double free等内存布局相关漏洞的技术。与之前提到资源耗尽型对抗技术相比，内存破坏型对抗技术更难防御，即使使用了目前的主流的stack canary，DEP和ASLR等技术\upcite{gisbert2014effectiveness}，大部分虽然情况下难以获得最终的系统权限，但仍然能使得相关进程触发异常而奔溃。而且因其技术门槛高，缺乏相关专业知识的恶意爬虫作者无法分析爬虫程序奔溃的根本原因，从而大大增加恶意爬虫制作者的爬取成本，有效遏制恶意爬虫对网站的干扰。在本章节中，我们主要从4T（Techniques，Tactics，Tools，Targets)入手，具体分析针对爬虫webdriver程序的漏洞挖掘和漏洞利用。
@@ -852,7 +854,7 @@ selenium & window.webdriver \\
 \item[3）] 污点检测：污点状态值通常被用于决定程序运行时的行为。例如，攻击监测器会在跳转地址被污染的情况下停止程序。在SIMPIL\upcite{flanagan2001avoiding}中，通过把策略加入到操作语义的前置条件中来实现污点检测。T-GOTO规则使用的是Pgotocheck(t)策略，如果跳转地址有一个被污染的值t，且跳转是安全的时候，Pgotocheck(t)会返回T，否则返回F。如果F被返回，规则的前提条件不能满足，最终导致程序的不正常退出。
 \end{itemize}
 
-目前动态污点分析面临如下挑战：
+目前动态污点分析主要面临如下挑战：
 \begin{itemize}
 \item 污染地址：很难区分存储地址和存储单元；
 \item 欠污染：不能够正确处理某些形式的信息流；
@@ -867,9 +869,6 @@ selenium & window.webdriver \\
 通常情况下，一套完整的fuzz测试流程是这样子的：首先由用户提供fuzz测试相关的配置并给定执行时间设置，fuzzer会在根据配置和当前的运行情况生成相应的攻击载荷，并将攻击载荷提供给指定二进制程序执行，在程序执行完毕后，fuzzer会收集程序执行的状态，并判定返回结果是够存在漏洞以及crash，在将有效的结果并到结果集中后，fuzzer会根据当前运行情况更新配置，并循环执行上述的流程。
 
 模糊测试一般根据fuzz能够观察到的语义粒度将fuzz分为三类：黑盒fuzz，白盒fuzz以及灰盒fuzz。黑盒fuzz常用与软件测试，在测试过程中，fuzzer无法接触到PUT（测试中的程序），只能向运行的程序提供输入并捕获输出。在另外一种极端的情况下，白盒fuzz中fuzzer将会通过分析PUT的内部信息来产生输入并捕获输出。灰盒fuzz介于白盒fuzz以及黑盒fuzz之间，通常情况下，它会收集一些PUT执行时产生时的内部信息，但不像白盒测试，它不会对PUT的高层语义进行分析。
-
-
-
 
 
 \subsection{使用的漏洞挖掘工具 （Tools)}
@@ -1242,7 +1241,7 @@ YES     &     1000/10  &     144.40s &  16296kB   &  1444.04ms    &  96.68kB/s\\
     \hline
   动态请求数目 &  静态请求数目 & 动态session数目 &  静态session数目  & 动态分类准确率  & 静态分类准确率  & 总准确率 \\
     \hline
-8720 & 1280 & 491 & 295 & 96.71\% & 70.47\% & \% 93.35\\
+8720 & 1280 & 491 & 295 & 96.71\% & 70.47\% & 93.35\% \\
 
 \hline
     \end{tabular}
@@ -1538,7 +1537,7 @@ afl-fuzz -i input/ -o output/ -m none -S fuzzer03   -- phantomjs_afl /root/fuzz/
 afl-fuzz -i input/ -o output/ -m none -S fuzzer04   -- phantomjs_afl /root/fuzz/test/test3.js
 \end{lstlisting}
 
-通过几天的fuzz，我们获取到了大量的hangs（超时错误），如图\ref{fig:hangs}所示。
+通过十几天的fuzz，我们获取到了大量的hangs（超时错误），如图\ref{fig:hangs}所示。hangs类型的错误产生的直接原因是因为程序对该样本的处理时间过长，导致程序没有在指定的时间限制反馈出相应输出。一般hangs类型错误是会被忽略的，但是在一些情况下，hangs类型的错误也意味着一部分的样本触发了占用大量资源的操作，通过精心构造的攻击载荷，有一定的可能性能够触发资源耗尽型的攻击。
 
 \centerline{}
 \begin{figure}[!h]
@@ -1552,7 +1551,7 @@ afl-fuzz -i input/ -o output/ -m none -S fuzzer04   -- phantomjs_afl /root/fuzz/
 
 \subsection{PhantomJS漏洞分析}
 
-在确定能够触发漏洞的样本后，我们首先使用gdb尝试定位到具体的漏洞触发函数。
+在确定能够触发漏洞的样本后，我们首先使用gdb尝试定位到具体的漏洞触发函数。gdb的调试命令如下所示。
 
 \lstset{language=JavaScript}
 \begin{lstlisting}
@@ -1564,11 +1563,10 @@ afl-fuzz -i input/ -o output/ -m none -S fuzzer04   -- phantomjs_afl /root/fuzz/
   \centering
   \includegraphics[width=0.68\textwidth]{images/gdb_backtrace.png}
   \caption{GDB backtrace}
-  \label{fig:logo}
+  \label{fig:bt}
 \end{figure}
 
- 
- 不难看出我们的漏洞存在QVector<QPainterPath::Element>::reallocData函数中，该函数对应文件位置为：phantomjs/src/qt/qtbase/src/corelib/tools/qvector.h。 我们在gdb中使用反汇编功能可以查看到触发漏洞具体的汇编代码，如图\ref{fig:gdb}所示。
+ 直接运行后，我们可以在gdb中捕获到segment fault。此时，我们可用使用gdb自带的backtrace功能查看漏洞触发时的函数调用栈帧情况，如图\ref{fig:bt}所示。不难看出我们的漏洞存在QVector<QPainterPath::Element>::reallocData函数中，该函数对应的代码文件位置为：phantomjs/src/qt/qtbase/src/corelib/tools/qvector.h。 我们在gdb中使用反汇编功能可以查看到触发漏洞具体的汇编代码，如图\ref{fig:gdb}所示。
  
 \centerline{}
 \begin{figure}[!h]
@@ -1593,14 +1591,14 @@ afl-fuzz -i input/ -o output/ -m none -S fuzzer04   -- phantomjs_afl /root/fuzz/
 
 
   
-从结果可以看出，allocate传入的参数中代表分配内存的参数每次调用都在以指数级的形式增长，最多的情况下，整个PhantomJS的进程已经占用到了系统的1G内存。由此，我们猜测，allocate函数对最大分配的内存空间有限制，一旦超过指定的大小，则返回空指针。而攻击载荷中的height=1E9\%正是消耗大量内存的关键，这个参数相当于将整张svg图片的画布放大了1000万倍。
+从结果可以看出，allocate传入的参数中代表分配内存的参数每次调用都在以指数级的形式增长，最多的情况下，整个PhantomJS的进程已经占用到了系统的1G内存。由此，我们结合QTwebkit的相关文档，不难得出结论：allocate函数对最大分配的内存空间有限制，一旦超过指定的大小，则返回空指针。而攻击载荷中的height=1E9\%正是消耗大量内存的关键，这个参数相当于将整张svg图片的画布放大了1000万倍，从而导致在初始化该画布的时候，不断地尝试申请内存资源，直到进程crash为止。攻击载荷的具体内容如下图\ref{fig:svg-payload}所示。
 
 \centerline{}
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/svg_payload.png}
   \caption{SVG 攻击载荷}
-  \label{fig:logo}
+  \label{fig:svg-payload}
 \end{figure}
 
 
