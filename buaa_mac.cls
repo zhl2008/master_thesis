@@ -74,6 +74,7 @@
 % 引用ctexbook: 小4,1.5倍行距
 \LoadClass[UTF8,zihao=-4,linespread=1.7]{ctexbook}%1.5+0.2行间距
 \setcounter{secnumdepth}{5}
+\setlength{\parskip}{0\baselineskip}
 
 \usepackage{graphicx}
 \def\BUAAThesisVer{v2.1 12-19-2018}
@@ -265,24 +266,25 @@
     fixskip=true,% Not Support by XeLaTeX
     beforeskip={.5\baselineskip},
     afterskip={.5\baselineskip},
-    %beforeskip=-24pt,
-    %afterskip=8.61pt,
     %break=\clearpage,% Not Support by XeLaTeX
   },
   section={%节标题 : 四号黑体居左 单倍行距 段前/段后0.5行
     format=\zihao{4} \heiti \raggedright,
+    fixskip=true,
     beforeskip={.5\baselineskip},
     afterskip={.5\baselineskip},
   },
   subsection={%条标题 : 小四号黑体居左 单倍行距 段前/段后0.5行
     format=\zihao{-4} \heiti \raggedright,
-    beforeskip=3.61pt,
-    afterskip=3.61pt,
+    fixskip=true,
+    beforeskip={.5\baselineskip},
+    afterskip={.5\baselineskip},
   },
   subsubsection={% 附加4级标题 : 小四号宋体加粗居左
     format=\zihao{-4} \songti \raggedright,
-    beforeskip=3.61pt,
-    afterskip=3.61pt,
+    fixskip=true,
+    beforeskip={.5\baselineskip},
+    afterskip={.5\baselineskip},
   },
   paragraph={% 附加5级标题 : 小四号宋体居左
     format=\zihao{-4} \songti \raggedright,
@@ -870,11 +872,11 @@
   \gdef\thesubsection{\@Alph\c@section.\@arabic\c@subsection}%
   %
 
-  \renewcommand{\thefigure}{A\arabic{figure}}
+  \renewcommand{\thefigure}{C\arabic{figure}}
   \setcounter{figure}{0}
-  \renewcommand{\thetable}{A\arabic{table}}
+  \renewcommand{\thetable}{C\arabic{table}}
   \setcounter{table}{0}
-  \renewcommand{\theequation}{A\arabic{equation}}
+  \renewcommand{\theequation}{C\arabic{equation}}
   \setcounter{equation}{0}
 }
 \newcommand{\achievement}{%学术成果

@@ -428,14 +428,12 @@
   \label{fig:crawlers}
 \end{figure}
 
-
 \begin{figure}[!h]
   \centering
   \includegraphics[width=0.68\textwidth]{images/session_len_10_100.png}
   \caption{清华大学某网站访问session长度分布图}
   \label{fig:session_len}
 \end{figure}
-
 
 数据集b来自于360天眼捕获的恶意攻击的流量，这些请求数据绝大部分是互联网上的漏洞扫描爬虫发送的，带有明显的攻击载荷的特征。和传统的爬虫访问流量不同，这些恶意攻击的请求使用了大量的对抗性策略，例如分布式爬取以及HTTP字段变异，通过这些手段，来干扰爬虫识别时的session分类。这对已有论文中，使用session粒度的爬虫检测方法提出了巨大的挑战。该数据集主要应用于验证本文中的session分类方法在遇到对抗性策略的爬虫时，仍能够保持较高的session识别准确率。
 
@@ -449,7 +447,6 @@
 \end{itemize}
 
 这些不同类型的爬虫将会产生大量普通的爬虫请求以及具有对抗性的爬虫请求，这些爬虫请求在产生的过程中会记录真实的session id用以检测session分类的效果，并且这些爬虫均具有能够执行服务器反馈的javascript的特性，因此也可以用于收集不同webdriver下的动态指纹。这些爬虫产生请求将会作为本研究的第三个数据集（数据集c）。
-
 
 \section{单粒度模式检测规则}
 单粒度模式检测指的是在不使用session信息以及其他动态信息的同时，仅仅利用单个HTTP请求中所有的可用信息，来判定该请求是否源于爬虫的技术。该技术也是应用最广泛、性能消耗最少的爬虫检测方法。因其对整个系统并没有过多性能损耗，在我们的模型和最终的系统中，我们仍然保留单粒度模式检测规则。
@@ -663,7 +660,7 @@ score = \frac {W_{ua} * M_{ua} + W_{url} * M_{url} + W_{other} * M_{other} + W_{
 
 \begin{figure}[!h]
   \centering
-  \includegraphics[width=0.68\textwidth]{images/fingerprint_generation.png}
+  \includegraphics[width=0.8\textwidth]{images/architecture/architecture002.jpeg}
   \caption{浏览器指纹生成流程}
   \label{fig:fp}
 \end{figure}
@@ -792,7 +789,7 @@ selenium & window.webdriver \\
 
 \begin{figure}[!h]
   \centering
-  \includegraphics[width=0.68\textwidth]{images/taint_link.png}
+  \includegraphics[width=0.8\textwidth]{images/architecture/architecture003.jpeg}
   \caption{taint-link技术实现流程}
   \label{fig:taint}
 \end{figure}
@@ -1037,7 +1034,7 @@ javascript存在支持跨域的接口，例如cross origin request以及支持�
 
 \begin{figure}[!h]
   \centering
-  \includegraphics[width=0.68\textwidth]{images/architecture.png}
+  \includegraphics[width=0.8\textwidth]{images/architecture/architecture001.jpeg}
   \caption{系统架构}
   \label{fig:architecture}
 \end{figure}
