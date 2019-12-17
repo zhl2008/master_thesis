@@ -132,6 +132,9 @@
 % 英语字体设置(!Only for XeLaTeX!)
 \setmainfont{Times New Roman}
 
+\setCJKfamilyfont{zhsong}[AutoFakeBold = {2.17}]{SimSun}
+\renewcommand*{\songti}{\CJKfamily{zhsong}}
+
 %% 数学环境
 % 数学符号：
 \newcommand\eu{\mathrm{e}}
